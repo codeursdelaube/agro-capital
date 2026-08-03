@@ -1,6 +1,6 @@
 import { cookies } from "next/headers";
 import { prisma } from "./prisma";
-import type { User } from "../generated/prisma";
+import type { User, Role } from "@prisma/client";
 
 // ============================================================
 // HACHAGE DU PIN (Web Crypto API — natif dans Node.js 20+)
@@ -147,7 +147,7 @@ export async function requireAuth(): Promise<User> {
 
 /** Vérifie l'authentification ET un rôle spécifique */
 export async function requireRole(
-  ...roles: import("../generated/prisma").Role[]
+  ...roles: Role[]
 ): Promise<User> {
   const user = await requireAuth();
   if (!roles.includes(user.role)) {

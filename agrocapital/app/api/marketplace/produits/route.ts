@@ -2,7 +2,7 @@ import { requireRole } from "@/_lib/auth";
 import { prisma } from "@/_lib/prisma";
 import { produitSchema, produitsFiltresSchema } from "@/_lib/validators";
 import { ok, err, handleError, parseBody } from "@/_lib/api-helpers";
-import type { Prisma } from "@/generated/prisma";
+import type { Prisma } from "@prisma/client";
 
 /** GET /api/marketplace/produits — Catalogue public avec filtres */
 export async function GET(req: Request) {
