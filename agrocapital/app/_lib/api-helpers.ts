@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { ZodError } from "zod";
+import { ZodError, type ZodSchema } from "zod";
 import { AuthError } from "./auth";
 
 // ============================================================
@@ -54,17 +54,10 @@ export function handleError(error: unknown): NextResponse {
 /** Parse et valide le body JSON d'une requête */
 export async function parseBody<T>(
   req: Request,
-  schema: { parse: (data: unknown) => T }
+  schema: ZodSchema<T>
 ): Promise<T> {
-  try {
-    const body = await req.json();
-    return schema.parse(body);
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      throw error;
-    }
-    throw error;
-  }
+  const body = await req.json();
+  return schema.parse(body);
 }
 
 /** Calcul de l'offset de pagination */
