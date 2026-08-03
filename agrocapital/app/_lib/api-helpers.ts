@@ -25,7 +25,11 @@ export function handleError(error: unknown): NextResponse {
     return err(error.message, error.status);
   }
   if (error instanceof ZodError) {
-    return err("Données invalides", 400, error.flatten().fieldErrors);
+    const issues = error.errors.map((e) => e.message).join(", ");
+    return err(issues || "Données invalides", 400, error.flatten().fieldErrors);
+  }
+  if (error instanceof SyntaxError) {
+    return err("Corps de la requête JSON invalide", 400);
   }
   // Erreur Prisma — contrainte unique
   if (
@@ -33,7 +37,7 @@ export function handleError(error: unknown): NextResponse {
     "code" in error &&
     (error as { code: string }).code === "P2002"
   ) {
-    return err("Cette ressource existe déjà", 409);
+    return err("Cette ressource existe déjà (ex: numéro de téléphone déjà enregistré)", 409);
   }
   // Erreur Prisma — enregistrement non trouvé
   if (
@@ -52,8 +56,15 @@ export async function parseBody<T>(
   req: Request,
   schema: { parse: (data: unknown) => T }
 ): Promise<T> {
-  const body = await req.json();
-  return schema.parse(body);
+  try {
+    const body = await req.json();
+    return schema.parse(body);
+  } catch (error) {
+    if (error instanceof SyntaxError) {
+      throw error;
+    }
+    throw error;
+  }
 }
 
 /** Calcul de l'offset de pagination */

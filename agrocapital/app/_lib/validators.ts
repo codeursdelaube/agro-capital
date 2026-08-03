@@ -4,15 +4,21 @@ import { z } from "zod";
 // HELPERS COMMUNS
 // ============================================================
 
-/** Numéro de téléphone togolais — format international ou local */
+/** Numéro de téléphone togolais — format international ou local (espaces nettoyés automatiquement) */
 const telephoneSchema = z
   .string()
-  .regex(/^(\+228|00228)?[279]\d{7}$/, "Numéro de téléphone togolais invalide");
+  .transform((val) => val.replace(/[\s\-\.\(\)]/g, ""))
+  .pipe(
+    z.string().regex(/^(\+228|00228)?[279]\d{7}$/, "Numéro de téléphone togolais invalide (ex: 90123456)")
+  );
 
 /** PIN numérique 4–6 chiffres */
 const pinSchema = z
   .string()
-  .regex(/^\d{4,6}$/, "Le PIN doit contenir 4 à 6 chiffres");
+  .transform((val) => val.trim())
+  .pipe(
+    z.string().regex(/^\d{4,6}$/, "Le PIN doit contenir 4 à 6 chiffres")
+  );
 
 /** Régions du Togo */
 const regionSchema = z.enum([

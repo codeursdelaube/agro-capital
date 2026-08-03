@@ -18,13 +18,23 @@ export async function POST(req: Request) {
 
     const pinHash = await hashPin(body.pin);
 
+    // Découpage automatique Nom / Prénom si un seul champ complet a été fourni
+    let nomFinal = body.nom.trim();
+    let prenomFinal = body.prenom?.trim();
+
+    if (!prenomFinal && nomFinal.includes(" ")) {
+      const parts = nomFinal.split(/\s+/);
+      nomFinal = parts[0];
+      prenomFinal = parts.slice(1).join(" ");
+    }
+
     const user = await prisma.$transaction(async (tx: any) => {
       const newUser = await tx.user.create({
         data: {
           telephone: body.telephone,
           pinHash,
-          nom: body.nom,
-          prenom: body.prenom,
+          nom: nomFinal,
+          prenom: prenomFinal || null,
           region: body.region,
           role: body.role,
         },
