@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { ShoppingBag, Store, Search, Filter, CheckCircle2, UserPlus } from "lucide-react";
 import { PageShell } from "@/_components/page-shell";
 import { formatFcfa, REGIONS_TOGO, CULTURES_COURANTES } from "@/_lib/utils";
@@ -27,7 +28,10 @@ type Produit = {
   };
 };
 
-export default function CataloguePage() {
+function CatalogueForm() {
+  const searchParams = useSearchParams();
+  const boutiqueIdParam = searchParams.get("boutiqueId") ?? "";
+
   const [produits, setProduits] = useState<Produit[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -49,6 +53,7 @@ export default function CataloguePage() {
       const params = new URLSearchParams();
       if (culture) params.set("culture", culture);
       if (region) params.set("region", region);
+      if (boutiqueIdParam) params.set("boutiqueId", boutiqueIdParam);
 
       const res = await fetch(`/api/marketplace/produits?${params.toString()}`);
       if (res.ok) {
@@ -60,7 +65,7 @@ export default function CataloguePage() {
     } finally {
       setLoading(false);
     }
-  }, [culture, region]);
+  }, [culture, region, boutiqueIdParam]);
 
   useEffect(() => {
     loadProduits();
@@ -301,5 +306,13 @@ export default function CataloguePage() {
         )}
       </div>
     </PageShell>
+  );
+}
+
+export default function CataloguePage() {
+  return (
+    <Suspense fallback={<PageShell><div className="flex justify-center p-12"><span className="loading loading-spinner loading-lg text-primary" /></div></PageShell>}>
+      <CatalogueForm />
+    </Suspense>
   );
 }

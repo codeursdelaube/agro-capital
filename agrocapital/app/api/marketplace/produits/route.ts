@@ -12,6 +12,7 @@ export async function GET(req: Request) {
 
     const where: Prisma.ProduitWhereInput = {
       statut: params.statut ?? "DISPONIBLE",
+      ...(params.boutiqueId ? { boutiqueId: params.boutiqueId } : {}),
       ...(params.culture
         ? { culture: { contains: params.culture, mode: "insensitive" } }
         : {}),

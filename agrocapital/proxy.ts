@@ -8,6 +8,7 @@ const PROTECTED_PREFIXES = [
   "/nantissement",
   "/simulateur",
   "/boutique",
+  "/catalogue",
   "/stocks",
   "/commandes",
   "/annonces",

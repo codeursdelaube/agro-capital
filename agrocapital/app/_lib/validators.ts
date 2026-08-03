@@ -201,6 +201,7 @@ export const paginationSchema = z.object({
 export const produitsFiltresSchema = paginationSchema.extend({
   culture: z.string().optional(),
   region: z.string().optional(),
+  boutiqueId: z.string().optional(),
   prixMin: z.coerce.number().optional(),
   prixMax: z.coerce.number().optional(),
   statut: z.enum(["DISPONIBLE", "RUPTURE"]).optional(),
