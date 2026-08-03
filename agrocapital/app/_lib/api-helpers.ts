@@ -25,7 +25,7 @@ export function handleError(error: unknown): NextResponse {
     return err(error.message, error.status);
   }
   if (error instanceof ZodError) {
-    const issues = error.errors.map((e) => e.message).join(", ");
+    const issues = error.issues.map((e) => e.message).join(", ");
     return err(issues || "Données invalides", 400, error.flatten().fieldErrors);
   }
   if (error instanceof SyntaxError) {
