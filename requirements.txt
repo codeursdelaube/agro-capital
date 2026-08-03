@@ -1,0 +1,28 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Agro-Capital — Backend FastAPI
+# Dépendances Python pinned pour reproductibilité
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Framework web
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+
+# Base de données (SQLAlchemy async + driver Postgres)
+sqlalchemy[asyncio]>=2.0.0
+asyncpg>=0.29.0
+
+# Configuration & environnement
+pydantic-settings>=2.0.0
+python-dotenv>=1.0.0
+
+# LLM — Google Gemini (gratuit, excellent français)
+google-genai>=1.0.0          # Nouveau SDK officiel Gemini (remplace google-generativeai)
+
+# Prédictions de prix
+prophet>=1.1.5          # Séries temporelles (Facebook/Meta)
+scikit-learn>=1.5.0     # Classification hausse/baisse/stable
+pandas>=2.0.0
+numpy>=1.26.0
+
+# Cache in-memory
+cachetools>=5.3.0
