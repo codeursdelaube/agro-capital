@@ -1,0 +1,495 @@
+// ============================================================
+// AGRO-CAPITAL — Schéma Prisma
+// Autorité unique sur la structure de données (FastAPI lit en read-only)
+// ============================================================
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================
+// ENUMS
+// ============================================================
+
+/// Rôles utilisateurs — contrôle les droits d'accès dans toute l'app
+enum Role {
+  AGRICULTEUR
+  CLIENT
+  ADMIN
+}
+
+/// Statut d'un produit dans la boutique (vitrine commerciale)
+enum StatutProduit {
+  DISPONIBLE /// En vente, quantité > 0
+  RUPTURE    /// quantiteDisponible = 0, produit visible mais non commandable
+  ARCHIVE    /// Retiré de la vente par l'agriculteur
+}
+
+/// Statut du stock physique de récolte (données brutes d'exploitation)
+enum StatutStock {
+  DISPONIBLE /// Stock non encore affecté
+  NANTI      /// Stock utilisé comme garantie de nantissement
+  RESERVE    /// Partiellement consommé par une commande confirmée
+  VENDU      /// Totalement épuisé
+}
+
+/// Statut d'une annonce de prévente / récolte future
+enum StatutAnnonce {
+  ANNONCEE  /// Récolte annoncée, réservations pas encore ouvertes
+  OUVERTE   /// Réservations acceptées
+  FERMEE    /// Quota atteint ou date passée
+  ANNULEE   /// Annulée par l'agriculteur
+}
+
+/// Cycle de vie d'une commande marketplace
+enum StatutCommande {
+  EN_ATTENTE   /// Commande créée, vendeur pas encore confirmé
+  CONFIRMEE    /// Vendeur a accepté — déclenche la décrémentation du stock
+  EN_LIVRAISON /// Commande en route
+  LIVREE       /// Livrée, paiement Mobile Money attendu/effectué
+  ANNULEE      /// Annulée avant livraison
+  LITIGE       /// Problème signalé, en attente de résolution
+}
+
+/// Modes de paiement acceptés à la livraison
+enum ModePaiement {
+  TMONEY  /// Mobile Money T-Money (Togocel)
+  FLOOZ   /// Mobile Money Flooz (Moov)
+  CASH    /// Espèces (cas exceptionnel)
+  VIREMENT /// Virement bancaire
+}
+
+/// Statut d'une transaction Mobile Money
+enum StatutTransaction {
+  EN_ATTENTE /// Initiée, en attente de confirmation opérateur
+  REUSSIE    /// Confirmée par l'opérateur
+  ECHOUEE    /// Rejetée par l'opérateur
+  EXPIREE    /// Timeout sans réponse
+}
+
+/// Statut d'une demande de nantissement (micro-crédit sur récolte)
+enum StatutNantissement {
+  EN_ATTENTE /// Dossier soumis, en attente d'examen
+  APPROUVEE  /// Accordée, montant débloqué
+  REJETEE    /// Refusée
+  REMBOURSEE /// Prêt remboursé, stock libéré
+}
+
+/// Types de notifications envoyées aux utilisateurs
+enum TypeNotification {
+  COMMANDE      /// Nouvelle commande reçue / changement de statut
+  ANNONCE       /// Nouvelle prévente d'un agriculteur suivi
+  PRIX          /// Alerte de variation de prix d'une culture suivie
+  STOCK         /// Alerte stock bas
+  SYSTEME       /// Message système / administratif
+  NANTISSEMENT  /// Mise à jour d'une demande de nantissement
+}
+
+/// Tendance de prix prévue par le module Agro-Pilot (FastAPI)
+enum Tendance {
+  HAUSSE
+  BAISSE
+  STABLE
+}
+
+/// Unités de mesure utilisées pour les produits et stocks
+enum UniteMesure {
+  KG
+  TONNE
+  SAC50KG   /// Sac de 50 kg (standard marché togolais)
+  SAC100KG  /// Sac de 100 kg
+  BOTTE      /// Botte (légumes feuilles, oignons)
+  LITRE
+  UNITE      /// Pièce / unité indivisible
+}
+
+// ============================================================
+// MODÈLES — AXE IDENTITÉ & COMPTE
+// ============================================================
+
+/// Compte utilisateur unique — pas d'email obligatoire, auth par téléphone + PIN
+model User {
+  id        String   @id @default(cuid())
+  telephone String   @unique
+  pinHash   String   /// PIN haché (bcrypt) — jamais exposé en clair
+  nom       String
+  prenom    String?
+  region    String   /// Région de Lomé ou autre région du Togo
+  role      Role     @default(CLIENT)
+  actif     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  boutique             Boutique?             /// Un agriculteur a au plus une boutique
+  stocks               Stock[]               /// Stocks physiques déclarés (agriculteur)
+  annonces             AnnonceRecolte[]      /// Préventes annoncées (agriculteur)
+  portefeuilleNumerique PortefeuilleNumerique? /// Portefeuille ventes
+  portefeuilleBancaire  PortefeuilleBancaire?  /// Portefeuille prêts/nantissements
+  commandesAcheteur    Commande[]            @relation("AcheteurCommandes")
+  commandesVendeur     Commande[]            @relation("VendeurCommandes")
+  notifications        Notification[]
+  suivis               Suivi[]               @relation("Follower")
+  followers            Suivi[]               @relation("Followed")
+  demandesNantissement DemandeNantissement[]
+  sessions             Session[]
+
+  @@index([telephone])
+  @@index([role])
+  @@index([region])
+}
+
+/// Session JWT côté serveur — permet invalidation (déconnexion, sécurité)
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+}
+
+// ============================================================
+// MODÈLES — AXE BOUTIQUE & PRODUIT
+// ============================================================
+
+/// Boutique d'un agriculteur — vitrine publique sur la marketplace (1 par agriculteur)
+model Boutique {
+  id          String   @id @default(cuid())
+  userId      String   @unique /// Contrainte : 1 boutique max par agriculteur
+  nom         String
+  description String?
+  photoUrl    String?
+  actif       Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  produits Produit[]
+
+  @@index([userId])
+}
+
+/// Produit mis en vente dans une boutique — distinct du Stock physique
+model Produit {
+  id                 String        @id @default(cuid())
+  boutiqueId         String
+  stockSourceId      String?       /// Référence optionnelle au stock d'origine
+  culture            String        /// Ex: "maïs", "tomate", "igname"
+  nom                String        /// Libellé affiché aux clients
+  description        String?
+  prixUnitaire       Float         /// Prix en FCFA par unité de mesure
+  uniteMesure        UniteMesure   @default(KG)
+  quantiteDisponible Float         /// Quantité actuellement disponible à la vente
+  quantiteMinCommande Float        @default(1) /// Quantité minimum par commande
+  statut             StatutProduit @default(DISPONIBLE)
+  photoUrl           String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  boutique    Boutique  @relation(fields: [boutiqueId], references: [id], onDelete: Cascade)
+  stockSource Stock?    @relation(fields: [stockSourceId], references: [id])
+  commandes   Commande[]
+
+  @@index([culture])
+  @@index([boutiqueId])
+  @@index([statut])
+}
+
+// ============================================================
+// MODÈLES — AXE STOCK PHYSIQUE
+// ============================================================
+
+/// Stock brut de récolte déclaré par l'agriculteur — données d'exploitation, pas de vitrine
+model Stock {
+  id              String      @id @default(cuid())
+  userId          String      /// Agriculteur propriétaire
+  culture         String      /// Culture concernée (même vocabulaire que Produit)
+  quantiteKg      Float       /// Quantité en kg (unité canonique interne)
+  valeurEstimee   Float?      /// Valeur estimée en FCFA au moment de la déclaration
+  statut          StatutStock @default(DISPONIBLE)
+  dateDeclaration DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  notes           String?     /// Observations libres de l'agriculteur
+
+  user                User                  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  produits            Produit[]             /// Produits issus de ce stock
+  demandesNantissement DemandeNantissement[] /// Ce stock peut être nanti
+
+  @@index([userId])
+  @@index([culture])
+  @@index([statut])
+}
+
+// ============================================================
+// MODÈLES — AXE PRÉVENTES / ANNONCES
+// ============================================================
+
+/// Annonce de récolte future — permet aux clients de réserver avant disponibilité physique
+model AnnonceRecolte {
+  id                String        @id @default(cuid())
+  userId            String        /// Agriculteur qui annonce
+  culture           String
+  quantiteEstimee   Float         /// En kg
+  prixEstime        Float?        /// Prix indicatif en FCFA/kg
+  dateRecoltePrevu  DateTime      /// Date estimée de récolte
+  statut            StatutAnnonce @default(ANNONCEE)
+  description       String?
+  region            String        /// Région de disponibilité
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  user        User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reservations Reservation[]
+
+  @@index([userId])
+  @@index([culture])
+  @@index([statut])
+  @@index([region])
+}
+
+/// Réservation d'un client sur une annonce de récolte future
+model Reservation {
+  id          String   @id @default(cuid())
+  annonceId   String
+  clientId    String   /// User (CLIENT ou AGRICULTEUR acheteur)
+  quantiteKg  Float
+  commentaire String?
+  createdAt   DateTime @default(now())
+
+  annonce AnnonceRecolte @relation(fields: [annonceId], references: [id], onDelete: Cascade)
+
+  @@index([annonceId])
+  @@index([clientId])
+}
+
+// ============================================================
+// MODÈLES — AXE COMMANDES
+// ============================================================
+
+/// Commande marketplace — valide pour CLIENT→AGRICULTEUR et AGRICULTEUR→AGRICULTEUR
+model Commande {
+  id           String         @id @default(cuid())
+  produitId    String
+  acheteurId   String         /// User qui commande (CLIENT ou AGRICULTEUR)
+  vendeurId    String         /// Toujours un User avec rôle AGRICULTEUR (contrainte applicative)
+  quantite     Float
+  montantTotal Float          /// quantite × prixUnitaire au moment de la commande
+  statut       StatutCommande @default(EN_ATTENTE)
+  modePaiement ModePaiement?  /// Renseigné à la livraison
+  adresseLivraison String?
+  notes        String?
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  produit     Produit                @relation(fields: [produitId], references: [id])
+  acheteur    User                   @relation("AcheteurCommandes", fields: [acheteurId], references: [id])
+  vendeur     User                   @relation("VendeurCommandes", fields: [vendeurId], references: [id])
+  transaction TransactionMobileMoney?
+
+  @@index([acheteurId])
+  @@index([vendeurId])
+  @@index([statut])
+  @@index([produitId])
+}
+
+// ============================================================
+// MODÈLES — AXE PORTEFEUILLES
+// ============================================================
+
+/// Portefeuille numérique — reçoit les paiements des ventes marketplace
+model PortefeuilleNumerique {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  solde     Float    @default(0)
+  updatedAt DateTime @updatedAt
+
+  user       User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mouvements MouvementNumerique[]
+
+  @@index([userId])
+}
+
+/// Historique des mouvements du portefeuille numérique
+model MouvementNumerique {
+  id            String    @id @default(cuid())
+  portefeuilleId String
+  montant       Float     /// Positif = crédit, négatif = débit
+  libelle       String    /// Description du mouvement
+  commandeId    String?   /// Commande liée si applicable
+  createdAt     DateTime  @default(now())
+
+  portefeuille PortefeuilleNumerique @relation(fields: [portefeuilleId], references: [id], onDelete: Cascade)
+
+  @@index([portefeuilleId])
+}
+
+/// Portefeuille bancaire — reçoit les décaissements de nantissement et prêts partenaires
+model PortefeuilleBancaire {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  solde     Float    @default(0)
+  updatedAt DateTime @updatedAt
+
+  user       User                 @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mouvements MouvementBancaire[]
+
+  @@index([userId])
+}
+
+/// Historique des mouvements du portefeuille bancaire
+model MouvementBancaire {
+  id                   String    @id @default(cuid())
+  portefeuilleId        String
+  montant              Float     /// Positif = crédit (prêt reçu), négatif = débit (remboursement)
+  libelle              String
+  demandeNantissementId String?  /// Demande liée si applicable
+  createdAt            DateTime  @default(now())
+
+  portefeuille PortefeuilleBancaire @relation(fields: [portefeuilleId], references: [id], onDelete: Cascade)
+
+  @@index([portefeuilleId])
+}
+
+// ============================================================
+// MODÈLES — AXE NANTISSEMENT (MICRO-CRÉDIT SUR RÉCOLTE)
+// ============================================================
+
+/// Demande de micro-crédit adossée à un stock physique comme garantie
+model DemandeNantissement {
+  id                    String              @id @default(cuid())
+  userId                String              /// Agriculteur demandeur
+  stockId               String              /// Stock mis en garantie
+  montantDemande        Float               /// Montant sollicité en FCFA
+  montantDebloque       Float?              /// Montant effectivement accordé (après décote de sécurité)
+  tauxDecote            Float               @default(0.7) /// Décote appliquée (ex: 0.7 = 70% de la valeur du stock)
+  statut                StatutNantissement  @default(EN_ATTENTE)
+  motif                 String?             /// Objet du financement (intrants, transport…)
+  dateDebloiement       DateTime?           /// Date effective de décaissement
+  dateRemboursementDue  DateTime?           /// Échéance de remboursement
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  user        User                    @relation(fields: [userId], references: [id])
+  stock       Stock                   @relation(fields: [stockId], references: [id])
+  transaction TransactionMobileMoney?
+
+  @@index([userId])
+  @@index([statut])
+  @@index([stockId])
+}
+
+// ============================================================
+// MODÈLES — AXE PAIEMENTS MOBILE MONEY
+// ============================================================
+
+/// Transaction Mobile Money — liée soit à une commande, soit à un nantissement (jamais les deux)
+model TransactionMobileMoney {
+  id                    String           @id @default(cuid())
+  commandeId            String?          @unique /// FK vers Commande (nullable)
+  demandeNantissementId String?          @unique /// FK vers DemandeNantissement (nullable)
+  operateur             ModePaiement     /// TMONEY ou FLOOZ principalement
+  numeroCible           String           /// Numéro de téléphone destinataire
+  montant               Float
+  statut                StatutTransaction @default(EN_ATTENTE)
+  reference             String?          @unique /// Référence retournée par l'opérateur
+  metadonnees           Json?            /// Payload brut de réponse opérateur (sandbox/prod)
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+
+  commande            Commande?            @relation(fields: [commandeId], references: [id])
+  demandeNantissement DemandeNantissement? @relation(fields: [demandeNantissementId], references: [id])
+
+  @@index([statut])
+  @@index([reference])
+}
+
+// ============================================================
+// MODÈLES — AXE NOTIFICATIONS & SUIVIS
+// ============================================================
+
+/// Abonnement d'un utilisateur à un agriculteur ou une culture pour recevoir des notifications
+model Suivi {
+  id             String   @id @default(cuid())
+  followerId     String   /// Utilisateur qui suit
+  followedUserId String?  /// Agriculteur suivi (nullable si suivi d'une culture seule)
+  cultureSuivie  String?  /// Culture suivie (nullable si suivi d'un agriculteur seul)
+  createdAt      DateTime @default(now())
+  // Contrainte applicative : au moins un des deux (followedUserId OU cultureSuivie) doit être non-null
+
+  follower     User  @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  followedUser User? @relation("Followed", fields: [followedUserId], references: [id], onDelete: SetNull)
+
+  @@unique([followerId, followedUserId, cultureSuivie]) /// Évite les doublons de suivi
+  @@index([followerId])
+  @@index([followedUserId])
+  @@index([cultureSuivie])
+}
+
+/// Notification envoyée à un utilisateur — lue/non-lue, lien vers la ressource
+model Notification {
+  id           String          @id @default(cuid())
+  userId       String          /// Destinataire
+  type         TypeNotification
+  titre        String
+  message      String
+  lienRessource String?        /// URL relative vers la ressource concernée (ex: /commandes/xyz)
+  lu           Boolean         @default(false)
+  createdAt    DateTime        @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([lu])
+  @@index([type])
+}
+
+// ============================================================
+// MODÈLES — AXE DONNÉES MARCHÉ (LECTURE PAR FASTAPI)
+// ============================================================
+
+/// Historique des prix collectés par culture et région — source de vérité pour Agro-Pilot
+/// STABLE : FastAPI lit ces champs en lecture seule, ne pas renommer sans coordination
+model PrixHistorique {
+  id        String   @id @default(cuid())
+  culture   String   /// Nom normalisé de la culture (clé de jointure avec Produit/Stock)
+  region    String   /// Région du Togo (Lomé, Kara, Sokodé…)
+  prix      Float    /// Prix en FCFA par kg (unité canonique)
+  source    String   /// "marche_officiel" | "collecte_terrain" | "fastapi_predict"
+  date      DateTime /// Date d'observation du prix
+  createdAt DateTime @default(now())
+
+  @@index([culture])
+  @@index([region])
+  @@index([date])
+  @@index([culture, region])
+}
+
+/// Prédictions de prix générées par le service Agro-Pilot (FastAPI) — lues par le frontend
+/// STABLE : FastAPI écrit ici, Next.js lit — ne pas renommer sans coordination
+model Prediction {
+  id               String   @id @default(cuid())
+  culture          String   /// Culture concernée
+  region           String   /// Région concernée
+  prixPrevu        Float    /// Prix prévu en FCFA/kg
+  tendance         Tendance
+  confiance        Float    /// Indice de confiance entre 0 et 1
+  recommandation   String   /// Texte de recommandation pour l'agriculteur
+  periodeOptimale  String?  /// Ex: "Octobre–Novembre" — meilleure période de vente
+  dateExpiration   DateTime /// La prédiction devient obsolète après cette date
+  createdAt        DateTime @default(now())
+
+  @@index([culture])
+  @@index([region])
+  @@index([culture, region])
+  @@index([dateExpiration])
+}

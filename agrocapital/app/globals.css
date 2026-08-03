@@ -1,0 +1,195 @@
+@import "tailwindcss";
+
+/* ─── DaisyUI Light theme (Default) ─────────────────────── */
+@plugin "daisyui" {
+  themes: agrocapital --default, agrocapital-dark;
+}
+
+@plugin "daisyui/theme" {
+  name: "agrocapital";
+  default: true;
+  color-scheme: light;
+
+  /* Brand palette */
+  --color-primary:         #16a34a;
+  --color-primary-content: #ffffff;
+  --color-secondary:       #facc15;
+  --color-secondary-content: #78350f;
+  --color-accent:          #16a34a;
+  --color-accent-content:  #ffffff;
+
+  /* Surfaces (Light Mode) */
+  --color-base-100: #ffffff;
+  --color-base-200: #f0faf3;
+  --color-base-300: #dcfce7;
+  --color-base-content: #1f2937;
+
+  /* Semantic */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error:   #dc2626;
+  --color-info:    #0369a1;
+
+  /* Shape system */
+  --radius-box:    1rem;
+  --radius-btn:    0.75rem;
+  --radius-badge:  9999px;
+}
+
+/* ─── DaisyUI Dark theme ────────────────────────────────── */
+@plugin "daisyui/theme" {
+  name: "agrocapital-dark";
+  color-scheme: dark;
+
+  /* Brand palette */
+  --color-primary:         #16a34a;
+  --color-primary-content: #ffffff;
+  --color-secondary:       #facc15;
+  --color-secondary-content: #78350f;
+  --color-accent:          #16a34a;
+  --color-accent-content:  #ffffff;
+
+  /* Dark Surfaces */
+  --color-base-100: #0f172a; /* slate-900 */
+  --color-base-200: #1e293b; /* slate-800 */
+  --color-base-300: #334155; /* slate-700 */
+  --color-base-content: #f8fafc; /* slate-50 */
+
+  /* Semantic */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-error:   #dc2626;
+  --color-info:    #0284c7;
+
+  /* Shape system */
+  --radius-box:    1rem;
+  --radius-btn:    0.75rem;
+  --radius-badge:  9999px;
+}
+
+/* ─── Global resets ─────────────────────────────────────── */
+html {
+  background: white;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html[data-theme="agrocapital-dark"],
+html.dark {
+  background-color: #0f172a;
+  color-scheme: dark;
+}
+
+body {
+  min-height: 100vh;
+  font-family: var(--font-inter, ui-sans-serif, system-ui, sans-serif);
+  -webkit-font-smoothing: antialiased;
+  color: #1f2937;
+  background-color: #ffffff;
+}
+
+html[data-theme="agrocapital-dark"] body {
+  color: #f8fafc;
+  background-color: #0f172a;
+}
+
+/* ─── Dark Mode Component Overrides ─────────────────────── */
+html[data-theme="agrocapital-dark"] .card,
+html[data-theme="agrocapital-dark"] .bg-white {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f8fafc;
+}
+
+html[data-theme="agrocapital-dark"] .bg-base-200 {
+  background-color: #0f172a !important;
+}
+
+html[data-theme="agrocapital-dark"] .border-base-200 {
+  border-color: #334155 !important;
+}
+
+html[data-theme="agrocapital-dark"] .text-muted {
+  color: #94a3b8 !important;
+}
+
+html[data-theme="agrocapital-dark"] .text-base-content {
+  color: #f8fafc !important;
+}
+
+html[data-theme="agrocapital-dark"] .input,
+html[data-theme="agrocapital-dark"] .select {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f8fafc;
+}
+
+
+/* ─── Typography utilities ──────────────────────────────── */
+@utility text-eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+@utility text-hero {
+  font-size: 2.25rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+@utility text-h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+}
+
+@utility text-h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+@utility text-body {
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+@utility text-muted {
+  color: #4b5563;
+}
+
+/* ─── Component overrides ───────────────────────────────── */
+.btn {
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.btn-lg {
+  min-height: 3.25rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+/* Input / select consistent sizing */
+.input, .select {
+  border-color: #e5e7eb;
+}
+.input:focus, .select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+}
+
+/* Progress bar */
+.progress-primary::-webkit-progress-value { background-color: var(--color-primary); }
+.progress-primary::-moz-progress-bar { background-color: var(--color-primary); }
+
+/* ─── Scrollbar (webkit) ────────────────────────────────── */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 9999px; }
