@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
 import { AppNav } from "@/_components/app-nav";
+import { LayoutShift } from "@/_components/layout-shift";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -34,10 +35,8 @@ export default function RootLayout({
     <html lang="fr" data-theme="agrocapital" className={`${inter.variable} ${poppins.variable}`}>
       <body className="min-h-screen bg-base-100 text-base-content antialiased">
         <AppNav />
-        {/* Décalage pour la sidebar desktop (md:pl-56), pas de décalage sur mobile */}
-        <div className="md:pl-56">
-          {children}
-        </div>
+        {/* LayoutShift ajoute md:pl-56 uniquement si l'utilisateur est connecté */}
+        <LayoutShift>{children}</LayoutShift>
       </body>
     </html>
   );

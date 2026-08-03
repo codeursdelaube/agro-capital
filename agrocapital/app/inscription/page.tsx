@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight, Lock, MapPin, Phone, User } from "lucide-react";
 import { motion } from "motion/react";
@@ -10,7 +9,6 @@ import { AgroCapitalWordmark } from "@/_components/app-nav";
 import { REGIONS_TOGO } from "@/_lib/utils";
 
 export default function InscriptionPage() {
-  const router = useRouter();
   const [nom, setNom] = useState("");
   const [region, setRegion] = useState<string>("Lomé");
   const [telephone, setTelephone] = useState("");
@@ -46,14 +44,20 @@ export default function InscriptionPage() {
       }
 
       // Auto-connexion après inscription
-      await fetch("/api/auth/connexion", {
+      const loginRes = await fetch("/api/auth/connexion", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ telephone, pin }),
       });
 
-      router.push("/");
-      router.refresh();
+      if (!loginRes.ok) {
+        // Inscription OK mais connexion auto échouée : on renvoie sur /connexion
+        window.location.href = "/connexion";
+        return;
+      }
+
+      // Rechargement complet pour activer la session
+      window.location.href = "/";
     } catch {
       setErreur("Problème de connexion. Vérifiez votre réseau.");
     } finally {

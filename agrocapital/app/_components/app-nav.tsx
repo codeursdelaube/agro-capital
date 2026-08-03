@@ -7,6 +7,7 @@ import {
   Calculator,
   Home,
   LogIn,
+  LogOut,
   Menu,
   Moon,
   PlusCircle,
@@ -20,11 +21,11 @@ import {
   Tag,
   Wallet,
 } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { useCurrentUser } from "@/_hooks/useCurrentUser";
 
-/** 4 routes principales affichées sur la Bottom Nav Mobile (1 seule ligne) */
+/** Routes principale bottom nav mobile */
 const mainMobileLinksAgri = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/marche", label: "Marché", icon: BarChart3 },
@@ -39,7 +40,7 @@ const mainMobileLinksClient = [
   { href: "/marche", label: "Marché", icon: BarChart3 },
 ] as const;
 
-/** Toutes les routes pour le Menu Burger et la Sidebar Desktop (Agriculteur) */
+/** Toutes les routes sidebar/burger — Agriculteur */
 const agriMenuLinks = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/boutique", label: "Ma Boutique Vitrine", icon: Store },
@@ -55,7 +56,7 @@ const agriMenuLinks = [
   { href: "/profil", label: "Mon Profil", icon: UserRound },
 ] as const;
 
-/** Toutes les routes pour le Menu Burger et la Sidebar Desktop (Client) */
+/** Toutes les routes sidebar/burger — Client */
 const clientMenuLinks = [
   { href: "/", label: "Accueil", icon: Home },
   { href: "/catalogue", label: "Catalogue Produits", icon: ShoppingBag },
@@ -87,11 +88,20 @@ export function AgroCapitalWordmark({ collapsed = false }: { collapsed?: boolean
   );
 }
 
+/**
+ * AppNav — Sidebar desktop + header mobile + bottom nav mobile.
+ * N'affiche RIEN si l'utilisateur n'est pas authentifié.
+ * Sur les pages /connexion et /inscription un header minimal est affiché.
+ */
 export function AppNav() {
   const pathname = usePathname();
-  const { user } = useCurrentUser();
+  const router = useRouter();
+  const { user, isLoading } = useCurrentUser();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+
+  // Pages publiques : nav complète masquée, seul un header minimal est affiché
+  const isAuthPage = pathname === "/connexion" || pathname === "/inscription";
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -120,10 +130,83 @@ export function AppNav() {
     }
   };
 
+  const handleLogout = async () => {
+    await fetch("/api/auth/profil", { method: "DELETE" });
+    window.location.href = "/";
+  };
+
   const isActive = (href: string) =>
     href === "/" ? pathname === "/" : pathname.startsWith(href);
 
-  const isAgri = user?.role === "AGRICULTEUR" || !user;
+  // ─── Pages d'authentification : header minimal sans sidebar ───────────────
+  if (isAuthPage) {
+    return (
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 shadow-xs">
+        <AgroCapitalWordmark />
+        <button
+          type="button"
+          onClick={toggleDarkMode}
+          aria-label="Basculer le mode sombre"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-primary/10 transition-colors"
+        >
+          {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
+        </button>
+      </header>
+    );
+  }
+
+  // ─── Loading : squelette minimal pour éviter le flash de sidebar ──────────
+  if (isLoading) {
+    return (
+      <>
+        {/* Header mobile squelette */}
+        <header className="md:hidden sticky top-0 z-40 flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 shadow-xs">
+          <AgroCapitalWordmark />
+          <div className="h-10 w-10 rounded-xl bg-slate-100 animate-pulse" />
+        </header>
+        {/* Sidebar desktop squelette */}
+        <aside className="hidden md:flex fixed inset-y-0 left-0 z-40 w-56 flex-col bg-white border-r border-slate-200">
+          <div className="px-5 py-6">
+            <AgroCapitalWordmark />
+          </div>
+          <div className="flex-1 px-3 space-y-2 pt-2">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-9 rounded-xl bg-slate-100 animate-pulse" />
+            ))}
+          </div>
+        </aside>
+      </>
+    );
+  }
+
+  // ─── Utilisateur non connecté : PAS de sidebar, PAS de nav ───────────────
+  if (!user) {
+    return (
+      <header className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 shadow-xs">
+        <AgroCapitalWordmark />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={toggleDarkMode}
+            aria-label="Basculer le mode sombre"
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-primary/10 transition-colors"
+          >
+            {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
+          </button>
+          <Link
+            href="/connexion"
+            className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90 transition-colors"
+          >
+            <LogIn size={16} />
+            Se connecter
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
+  // ─── Utilisateur connecté : sidebar complète selon le rôle ───────────────
+  const isAgri = user.role === "AGRICULTEUR";
   const mobileLinks = isAgri ? mainMobileLinksAgri : mainMobileLinksClient;
   const menuLinks = isAgri ? agriMenuLinks : clientMenuLinks;
 
@@ -132,7 +215,6 @@ export function AppNav() {
       {/* HEADER MOBILE */}
       <header className="md:hidden sticky top-0 z-40 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 py-3 shadow-xs">
         <AgroCapitalWordmark />
-
         <div className="flex items-center gap-2">
           <button
             type="button"
@@ -140,9 +222,8 @@ export function AppNav() {
             aria-label="Basculer le mode sombre"
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-primary/10 transition-colors"
           >
-            {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-slate-700" />}
+            {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
           </button>
-
           <button
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
@@ -167,7 +248,7 @@ export function AppNav() {
           >
             <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800">
               <span className="text-xs font-extrabold uppercase tracking-wider text-primary">
-                Menu {user ? `(${user.role})` : "Principal"}
+                {user.nom} · {user.role}
               </span>
               <button
                 type="button"
@@ -199,16 +280,16 @@ export function AppNav() {
                   </Link>
                 );
               })}
-              {!user && (
-                <Link
-                  href="/connexion"
-                  onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-3.5 rounded-2xl px-4 py-3 text-sm font-bold bg-primary/10 text-primary mt-2"
-                >
-                  <LogIn size={19} /> Se connecter / S&apos;inscrire
-                </Link>
-              )}
             </nav>
+
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all mt-2"
+            >
+              <LogOut size={18} />
+              Se déconnecter
+            </button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -252,17 +333,20 @@ export function AppNav() {
               </Link>
             );
           })}
-          {!user && (
-            <Link
-              href="/connexion"
-              className="flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-xs font-bold bg-primary text-white mt-4 justify-center"
-            >
-              <LogIn size={15} /> Se connecter
-            </Link>
-          )}
         </nav>
 
         <div className="px-4 py-4 border-t border-slate-200 dark:border-slate-800 space-y-2">
+          {/* Info utilisateur */}
+          <div className="flex items-center gap-2.5 px-1 pb-2">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary font-extrabold text-sm">
+              {user.nom.charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-xs font-bold text-slate-900 dark:text-white">{user.nom}</p>
+              <p className="truncate text-[10px] text-slate-500">{user.role === "AGRICULTEUR" ? "🌾 Agriculteur" : "🛒 Client"}</p>
+            </div>
+          </div>
+
           <button
             type="button"
             onClick={toggleDarkMode}
@@ -273,6 +357,16 @@ export function AppNav() {
               {isDark ? "Clair" : "Sombre"}
             </span>
           </button>
+
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          >
+            <LogOut size={14} />
+            Se déconnecter
+          </button>
+
           <p className="text-[11px] text-center text-slate-400 font-medium">Djanta 2026 · Lomé</p>
         </div>
       </aside>
