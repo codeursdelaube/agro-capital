@@ -15,6 +15,7 @@ import {
   Shield,
   Zap,
   Star,
+  Sparkles,
 } from "lucide-react";
 import { motion, useScroll, useTransform, type Variants } from "motion/react";
 import { useCurrentUser } from "@/_hooks/useCurrentUser";
@@ -40,6 +41,13 @@ const fadeIn: Variants = {
 
 // ─── Données features ─────────────────────────────────────────────────────────
 const features = [
+  {
+    icon: Sparkles,
+    color: "bg-emerald-100 text-emerald-800",
+    title: "Agro-Pilot IA",
+    desc: "Votre assistant virtuel intelligent connecté à Supabase : opportunités de vente, météo et prêts bancaires.",
+    href: "/agro-pilot",
+  },
   {
     icon: BarChart3,
     color: "bg-emerald-100 text-emerald-700",
@@ -213,6 +221,63 @@ function HeroPublic() {
   );
 }
 
+// ─── Widget Cultures Recommandées (Agro-Pilot FastAPI) ────────────────────────
+type CultureRec = {
+  culture: string;
+  score_rentabilite: number;
+  raison: string;
+  saison_optimale: string;
+};
+
+function RecommandationsCulturesWidget() {
+  const [cultures, setCultures] = useState<CultureRec[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetch("/api/agro-pilot/recommandations")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data?.cultures) {
+          setCultures(json.data.cultures);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return null;
+
+  return (
+    <div className="card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl space-y-3 shadow-xs">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-emerald-700 dark:text-emerald-400 font-extrabold text-sm">
+          <Sparkles size={18} /> Cultures Recommandées par Agro-Pilot
+        </div>
+        <Link href="/agro-pilot" className="text-xs font-extrabold text-emerald-600 hover:underline">
+          Tout voir →
+        </Link>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-3">
+        {cultures.map((c, i) => (
+          <div key={i} className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 space-y-1">
+            <div className="flex items-center justify-between">
+              <strong className="text-sm font-extrabold text-slate-900 dark:text-white">{c.culture}</strong>
+              <span className="badge badge-xs bg-emerald-100 text-emerald-800 font-bold border-0">
+                {c.score_rentabilite}/100
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 line-clamp-2">{c.raison}</p>
+            <span className="text-[10px] font-bold text-emerald-700 dark:text-emerald-400 block pt-1">
+              🗓️ Saison : {c.saison_optimale}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Dashboard Agriculteur connecté ──────────────────────────────────────────
 function HeroAgriculteur({
   nom,
@@ -224,35 +289,40 @@ function HeroAgriculteur({
   nbStocks: number;
 }) {
   return (
-    <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-10 -right-10 h-52 w-52 rounded-full bg-white/5"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-yellow-400/10"
-      />
-      <div className="relative flex items-center gap-4 px-5 py-7">
-        <div className="flex-1">
-          <p className="text-sm font-semibold text-emerald-200">Bonjour 👋</p>
-          <h1 className="mt-0.5 text-2xl font-extrabold leading-tight">{nom}</h1>
-          <p className="mt-1 text-sm text-emerald-200">🌾 Agriculteur · Agro-Capital</p>
-          <div className="mt-4 rounded-2xl bg-white/15 backdrop-blur-sm px-4 py-3">
-            <p className="text-xs font-semibold text-emerald-100">Valeur totale de vos stocks</p>
-            <p className="text-2xl font-extrabold">{formatFcfa(valeurStock)}</p>
-            <p className="text-xs text-emerald-200">{nbStocks} stock(s) déclaré(s)</p>
-          </div>
-        </div>
-        <Image
-          src="/illustartion3.png"
-          alt="Protection de votre récolte"
-          width={160}
-          height={160}
-          className="w-32 shrink-0 drop-shadow-xl"
+    <div className="space-y-4">
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 to-emerald-800 text-white">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute -top-10 -right-10 h-52 w-52 rounded-full bg-white/5"
         />
-      </div>
-    </section>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute bottom-0 left-0 h-32 w-32 rounded-full bg-yellow-400/10"
+        />
+        <div className="relative flex items-center gap-4 px-5 py-7">
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-emerald-200">Bonjour 👋</p>
+            <h1 className="mt-0.5 text-2xl font-extrabold leading-tight">{nom}</h1>
+            <p className="mt-1 text-sm text-emerald-200">🌾 Agriculteur · Agro-Capital</p>
+            <div className="mt-4 rounded-2xl bg-white/15 backdrop-blur-sm px-4 py-3">
+              <p className="text-xs font-semibold text-emerald-100">Valeur totale de vos stocks</p>
+              <p className="text-2xl font-extrabold">{formatFcfa(valeurStock)}</p>
+              <p className="text-xs text-emerald-200">{nbStocks} stock(s) déclaré(s)</p>
+            </div>
+          </div>
+          <Image
+            src="/illustartion3.png"
+            alt="Protection de votre récolte"
+            width={160}
+            height={160}
+            className="w-32 shrink-0 drop-shadow-xl"
+          />
+        </div>
+      </section>
+
+      {/* Recommandations Agro-Pilot */}
+      <RecommandationsCulturesWidget />
+    </div>
   );
 }
 

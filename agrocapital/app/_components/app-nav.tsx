@@ -20,6 +20,7 @@ import {
   Bell,
   Tag,
   Wallet,
+  Sparkles,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
@@ -28,21 +29,22 @@ import { useCurrentUser } from "@/_hooks/useCurrentUser";
 /** Routes principale bottom nav mobile */
 const mainMobileLinksAgri = [
   { href: "/", label: "Accueil", icon: Home },
-  { href: "/marche", label: "Marché", icon: BarChart3 },
+  { href: "/agro-pilot", label: "Agro-Pilot", icon: Sparkles },
   { href: "/boutique", label: "Boutique", icon: Store },
   { href: "/commandes", label: "Commandes", icon: ShoppingBag },
 ] as const;
 
 const mainMobileLinksClient = [
   { href: "/", label: "Accueil", icon: Home },
+  { href: "/agro-pilot", label: "Agro-Pilot", icon: Sparkles },
   { href: "/catalogue", label: "Catalogue", icon: ShoppingBag },
   { href: "/commandes", label: "Achats", icon: Store },
-  { href: "/marche", label: "Marché", icon: BarChart3 },
 ] as const;
 
 /** Toutes les routes sidebar/burger — Agriculteur */
 const agriMenuLinks = [
   { href: "/", label: "Accueil", icon: Home },
+  { href: "/agro-pilot", label: "Agro-Pilot (Assistant IA)", icon: Sparkles },
   { href: "/boutique", label: "Ma Boutique Vitrine", icon: Store },
   { href: "/boutique/produits", label: "Mes Produits en Vente", icon: ShoppingBag },
   { href: "/stocks/nouveau", label: "Déclarer du Stock Phys.", icon: PlusCircle },
@@ -59,6 +61,7 @@ const agriMenuLinks = [
 /** Toutes les routes sidebar/burger — Client */
 const clientMenuLinks = [
   { href: "/", label: "Accueil", icon: Home },
+  { href: "/agro-pilot", label: "Agro-Pilot (Conseiller IA)", icon: Sparkles },
   { href: "/catalogue", label: "Catalogue Produits", icon: ShoppingBag },
   { href: "/boutique", label: "Annuaire des Boutiques", icon: Store },
   { href: "/commandes", label: "Mes Achats & Livraisons", icon: Store },
@@ -71,17 +74,18 @@ const clientMenuLinks = [
 /** Wordmark partagé */
 export function AgroCapitalWordmark({ collapsed = false }: { collapsed?: boolean }) {
   return (
-    <Link href="/" className="flex items-center gap-2.5 select-none" aria-label="Agro-Capital — accueil">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
-        <rect width="32" height="32" rx="8" fill="#16a34a" />
-        <path d="M16 6 C10 6 7 12 8 19 C10 17 13 15 16 15 C19 15 22 17 24 19 C25 12 22 6 16 6Z" fill="#dcfce7" />
-        <path d="M16 15 L16 26" stroke="#facc15" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M16 20 L12 17" stroke="#facc15" strokeWidth="2" strokeLinecap="round" />
-        <path d="M16 22 L20 19" stroke="#facc15" strokeWidth="2" strokeLinecap="round" />
-      </svg>
+    <Link href="/" className="flex items-center gap-2.5 select-none group" aria-label="Agro-Capital — accueil">
+      <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+        <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <path d="M16 6 C10 6 7 12 8 19 C10 17 13 15 16 15 C19 15 22 17 24 19 C25 12 22 6 16 6Z" fill="#dcfce7" />
+          <path d="M16 15 L16 26" stroke="#facc15" strokeWidth="2.5" strokeLinecap="round" />
+          <path d="M16 20 L12 17" stroke="#facc15" strokeWidth="2" strokeLinecap="round" />
+          <path d="M16 22 L20 19" stroke="#facc15" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </div>
       {!collapsed && (
-        <span className="text-base font-extrabold tracking-tight text-slate-900 dark:text-white leading-none">
-          Agro<span className="text-primary">Capital</span>
+        <span className="text-lg font-black tracking-tight text-slate-900 dark:text-white leading-none">
+          Agro<span className="text-emerald-600 dark:text-emerald-400">Capital</span>
         </span>
       )}
     </Link>

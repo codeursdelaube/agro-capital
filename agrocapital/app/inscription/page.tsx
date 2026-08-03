@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Lock, MapPin, Phone, User } from "lucide-react";
+import { ArrowRight, Lock, MapPin, Phone, User, AlertCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { PageShell } from "@/_components/page-shell";
 import { AgroCapitalWordmark } from "@/_components/app-nav";
@@ -51,7 +51,6 @@ export default function InscriptionPage() {
       });
 
       if (!loginRes.ok) {
-        // Inscription OK mais connexion auto échouée : on renvoie sur /connexion
         window.location.href = "/connexion";
         return;
       }
@@ -67,7 +66,7 @@ export default function InscriptionPage() {
 
   return (
     <PageShell>
-      <div className="space-y-6">
+      <div className="mx-auto w-full max-w-md space-y-6 py-4">
         <div className="flex justify-center pt-2">
           <AgroCapitalWordmark />
         </div>
@@ -77,9 +76,9 @@ export default function InscriptionPage() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-h1">Créer mon compte</h1>
-          <p className="mt-2 text-sm text-muted">
-            Inscrivez-vous en 1 minute pour valoriser vos récoltes.
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 dark:text-white">Créer mon compte</h1>
+          <p className="mt-1.5 text-sm text-slate-500">
+            Inscrivez-vous en 1 minute pour accéder aux services.
           </p>
         </motion.header>
 
@@ -88,49 +87,54 @@ export default function InscriptionPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.08 }}
           onSubmit={handleSubmit}
-          className="card bg-white shadow-sm border border-base-200"
+          className="card bg-white shadow-xl shadow-slate-200/50 border border-slate-100 dark:border-slate-800 rounded-3xl"
         >
-          <div className="card-body gap-5 p-6">
+          <div className="card-body gap-5 p-6 sm:p-8">
             {erreur && (
-              <div role="alert" className="alert alert-error text-sm py-3">
+              <div className="flex items-center gap-3 rounded-2xl bg-rose-50 border border-rose-200 p-4 text-xs sm:text-sm font-semibold text-rose-700">
+                <AlertCircle size={18} className="shrink-0 text-rose-600" />
                 <span>{erreur}</span>
               </div>
             )}
 
             {/* Type de compte */}
             <div className="form-control gap-2">
-              <span className="label-text font-semibold text-base-content">Je suis</span>
+              <span className="label-text font-bold text-slate-800 dark:text-slate-200">Je suis</span>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   type="button"
                   onClick={() => setRole("AGRICULTEUR")}
-                  className={`btn btn-lg flex-col h-auto py-3 gap-1 ${
-                    role === "AGRICULTEUR" ? "btn-primary" : "btn-outline border-base-300"
+                  className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all ${
+                    role === "AGRICULTEUR"
+                      ? "border-emerald-600 bg-emerald-50/50 text-emerald-900 font-extrabold"
+                      : "border-slate-200 hover:border-slate-300 text-slate-600 font-bold"
                   }`}
                 >
-                  <span className="text-xl">🌾</span>
-                  <span className="text-sm">Agriculteur</span>
+                  <span className="text-2xl mb-1">🌾</span>
+                  <span className="text-xs sm:text-sm">Agriculteur</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setRole("CLIENT")}
-                  className={`btn btn-lg flex-col h-auto py-3 gap-1 ${
-                    role === "CLIENT" ? "btn-primary" : "btn-outline border-base-300"
+                  className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border-2 transition-all ${
+                    role === "CLIENT"
+                      ? "border-emerald-600 bg-emerald-50/50 text-emerald-900 font-extrabold"
+                      : "border-slate-200 hover:border-slate-300 text-slate-600 font-bold"
                   }`}
                 >
-                  <span className="text-xl">🛒</span>
-                  <span className="text-sm">Client / Acheteur</span>
+                  <span className="text-2xl mb-1">🛒</span>
+                  <span className="text-xs sm:text-sm">Client / Acheteur</span>
                 </button>
               </div>
             </div>
 
             {/* Nom */}
-            <div className="form-control gap-2">
+            <div className="form-control gap-1.5">
               <label
                 htmlFor="nom-input"
-                className="label-text font-semibold text-base-content flex items-center gap-2"
+                className="label-text font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2"
               >
-                <User size={18} className="text-primary" />
+                <User size={16} className="text-emerald-600" />
                 Nom et Prénom
               </label>
               <input
@@ -139,26 +143,26 @@ export default function InscriptionPage() {
                 placeholder="Ex: Akouvi Mensah"
                 value={nom}
                 onChange={(e) => setNom(e.target.value)}
-                className="input input-bordered input-lg w-full text-base font-semibold"
+                className="input input-bordered input-lg w-full font-bold text-base text-slate-900 bg-slate-50/50 focus:bg-white border-slate-200 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 rounded-2xl transition-all"
                 autoComplete="name"
                 required
               />
             </div>
 
             {/* Région */}
-            <div className="form-control gap-2">
+            <div className="form-control gap-1.5">
               <label
                 htmlFor="region-select"
-                className="label-text font-semibold text-base-content flex items-center gap-2"
+                className="label-text font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2"
               >
-                <MapPin size={18} className="text-primary" />
+                <MapPin size={16} className="text-emerald-600" />
                 Votre région
               </label>
               <select
                 id="region-select"
                 value={region}
                 onChange={(e) => setRegion(e.target.value)}
-                className="select select-bordered select-lg w-full font-semibold"
+                className="select select-bordered select-lg w-full font-bold text-base text-slate-900 bg-slate-50/50 focus:bg-white border-slate-200 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 rounded-2xl transition-all"
                 required
               >
                 {REGIONS_TOGO.map((r) => (
@@ -170,77 +174,78 @@ export default function InscriptionPage() {
             </div>
 
             {/* Téléphone */}
-            <div className="form-control gap-2">
+            <div className="form-control gap-1.5">
               <label
                 htmlFor="reg-phone-input"
-                className="label-text font-semibold text-base-content flex items-center gap-2"
+                className="label-text font-bold text-slate-800 dark:text-slate-200 flex items-center gap-2"
               >
-                <Phone size={18} className="text-primary" />
+                <Phone size={16} className="text-emerald-600" />
                 Numéro de téléphone
               </label>
               <input
                 id="reg-phone-input"
                 type="tel"
-                placeholder="Ex: 90123456"
+                inputMode="tel"
+                placeholder="Ex: 90 12 34 56"
                 value={telephone}
                 onChange={(e) => setTelephone(e.target.value)}
-                className="input input-bordered input-lg w-full text-lg font-bold"
+                className="input input-bordered input-lg w-full font-bold text-lg text-slate-900 bg-slate-50/50 focus:bg-white border-slate-200 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 rounded-2xl transition-all"
                 autoComplete="tel"
                 required
               />
-              <span className="text-xs text-muted">Ce numéro sera utilisé pour vos paiements Mobile Money.</span>
+              <span className="text-[11px] text-slate-400 font-medium">Format togolais T-Money ou Flooz</span>
             </div>
 
-            {/* PIN */}
-            <div className="form-control gap-2">
-              <label
-                htmlFor="reg-pin-input"
-                className="label-text font-semibold text-base-content flex items-center gap-2"
-              >
-                <Lock size={18} className="text-primary" />
-                Code secret PIN (4 à 6 chiffres)
-              </label>
-              <input
-                id="reg-pin-input"
-                type="password"
-                inputMode="numeric"
-                maxLength={6}
-                placeholder="••••"
-                value={pin}
-                onChange={(e) => setPin(e.target.value)}
-                className="input input-bordered input-lg w-full text-center text-2xl font-extrabold tracking-widest"
-                autoComplete="new-password"
-                required
-              />
-            </div>
+            {/* PIN & Confirmation */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="form-control gap-1.5">
+                <label
+                  htmlFor="reg-pin-input"
+                  className="label-text font-bold text-xs text-slate-800 dark:text-slate-200 flex items-center gap-1.5"
+                >
+                  <Lock size={14} className="text-emerald-600" />
+                  PIN (4-6 ch.)
+                </label>
+                <input
+                  id="reg-pin-input"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="••••"
+                  value={pin}
+                  onChange={(e) => setPin(e.target.value)}
+                  className="input input-bordered input-md w-full text-center text-xl font-extrabold tracking-widest text-slate-900 bg-slate-50/50 focus:bg-white border-slate-200 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 rounded-2xl transition-all"
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
 
-            {/* Confirmation PIN */}
-            <div className="form-control gap-2">
-              <label
-                htmlFor="reg-pin-confirm"
-                className="label-text font-semibold text-base-content flex items-center gap-2"
-              >
-                <Lock size={18} className="text-primary" />
-                Confirmez votre PIN
-              </label>
-              <input
-                id="reg-pin-confirm"
-                type="password"
-                inputMode="numeric"
-                maxLength={6}
-                placeholder="••••"
-                value={pinConfirm}
-                onChange={(e) => setPinConfirm(e.target.value)}
-                className="input input-bordered input-lg w-full text-center text-2xl font-extrabold tracking-widest"
-                autoComplete="new-password"
-                required
-              />
-              <span className="text-xs text-muted">Ce code vous protège lors des demandes de cash.</span>
+              <div className="form-control gap-1.5">
+                <label
+                  htmlFor="reg-pin-confirm"
+                  className="label-text font-bold text-xs text-slate-800 dark:text-slate-200 flex items-center gap-1.5"
+                >
+                  <Lock size={14} className="text-emerald-600" />
+                  Confirmer PIN
+                </label>
+                <input
+                  id="reg-pin-confirm"
+                  type="password"
+                  inputMode="numeric"
+                  maxLength={6}
+                  placeholder="••••"
+                  value={pinConfirm}
+                  onChange={(e) => setPinConfirm(e.target.value)}
+                  className="input input-bordered input-md w-full text-center text-xl font-extrabold tracking-widest text-slate-900 bg-slate-50/50 focus:bg-white border-slate-200 focus:border-emerald-600 focus:ring-4 focus:ring-emerald-600/10 rounded-2xl transition-all"
+                  autoComplete="new-password"
+                  required
+                />
+              </div>
             </div>
 
             <button
               type="submit"
-              className="btn btn-primary btn-lg w-full mt-2 text-lg"
+              className="btn bg-emerald-600 hover:bg-emerald-700 text-white border-0 btn-lg w-full mt-2 text-base font-extrabold shadow-lg shadow-emerald-600/25 rounded-2xl transition-all active:scale-98"
               disabled={chargement}
             >
               {chargement ? (
@@ -248,7 +253,7 @@ export default function InscriptionPage() {
               ) : (
                 <>
                   Créer mon compte
-                  <ArrowRight size={20} aria-hidden="true" />
+                  <ArrowRight size={18} aria-hidden="true" />
                 </>
               )}
             </button>
@@ -256,9 +261,12 @@ export default function InscriptionPage() {
         </motion.form>
 
         <div className="text-center pt-2">
-          <p className="text-sm text-muted">Vous avez déjà un compte ?</p>
-          <Link href="/connexion" className="link link-primary font-bold text-base mt-1 inline-block">
-            Se connecter
+          <p className="text-sm text-slate-500">Vous avez déjà un compte ?</p>
+          <Link
+            href="/connexion"
+            className="text-sm font-extrabold text-emerald-600 hover:text-emerald-700 hover:underline mt-1 inline-block"
+          >
+            Se connecter →
           </Link>
         </div>
       </div>

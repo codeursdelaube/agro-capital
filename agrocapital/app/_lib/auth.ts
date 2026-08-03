@@ -40,33 +40,38 @@ export async function hashPin(pin: string): Promise<string> {
 
 /** Vérifie un PIN contre son hash stocké */
 export async function verifyPin(pin: string, stored: string): Promise<boolean> {
-  const [saltHex, hashHex] = stored.split(":");
-  if (!saltHex || !hashHex) return false;
+  try {
+    if (!stored || !stored.includes(":")) return false;
+    const [saltHex, hashHex] = stored.split(":");
+    if (!saltHex || !hashHex) return false;
 
-  const encoder = new TextEncoder();
-  const salt = Buffer.from(saltHex, "hex");
+    const encoder = new TextEncoder();
+    const salt = Buffer.from(saltHex, "hex");
 
-  const keyMaterial = await crypto.subtle.importKey(
-    "raw",
-    encoder.encode(pin),
-    { name: "PBKDF2" },
-    false,
-    ["deriveBits"]
-  );
+    const keyMaterial = await crypto.subtle.importKey(
+      "raw",
+      encoder.encode(pin),
+      { name: "PBKDF2" },
+      false,
+      ["deriveBits"]
+    );
 
-  const hash = await crypto.subtle.deriveBits(
-    {
-      name: "PBKDF2",
-      salt,
-      iterations: PIN_SALT_ROUNDS,
-      hash: "SHA-256",
-    },
-    keyMaterial,
-    256
-  );
+    const hash = await crypto.subtle.deriveBits(
+      {
+        name: "PBKDF2",
+        salt,
+        iterations: PIN_SALT_ROUNDS,
+        hash: "SHA-256",
+      },
+      keyMaterial,
+      256
+    );
 
-  const candidateHex = Buffer.from(hash).toString("hex");
-  return candidateHex === hashHex;
+    const candidateHex = Buffer.from(hash).toString("hex");
+    return candidateHex === hashHex;
+  } catch {
+    return false;
+  }
 }
 
 // ============================================================

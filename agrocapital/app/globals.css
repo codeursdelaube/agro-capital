@@ -11,28 +11,28 @@
   color-scheme: light;
 
   /* Brand palette */
-  --color-primary:         #16a34a;
+  --color-primary:         #059669; /* Emerald 600 */
   --color-primary-content: #ffffff;
-  --color-secondary:       #facc15;
-  --color-secondary-content: #78350f;
-  --color-accent:          #16a34a;
+  --color-secondary:       #eab308; /* Yellow 500 */
+  --color-secondary-content: #713f12;
+  --color-accent:          #10b981; /* Emerald 500 */
   --color-accent-content:  #ffffff;
 
   /* Surfaces (Light Mode) */
   --color-base-100: #ffffff;
-  --color-base-200: #f0faf3;
+  --color-base-200: #f0fdf4;
   --color-base-300: #dcfce7;
-  --color-base-content: #1f2937;
+  --color-base-content: #0f172a;
 
   /* Semantic */
-  --color-success: #16a34a;
+  --color-success: #059669;
   --color-warning: #d97706;
-  --color-error:   #dc2626;
-  --color-info:    #0369a1;
+  --color-error:   #e11d48;
+  --color-info:    #0284c7;
 
   /* Shape system */
   --radius-box:    1rem;
-  --radius-btn:    0.75rem;
+  --radius-btn:    0.875rem;
   --radius-badge:  9999px;
 }
 
@@ -42,28 +42,28 @@
   color-scheme: dark;
 
   /* Brand palette */
-  --color-primary:         #16a34a;
+  --color-primary:         #10b981;
   --color-primary-content: #ffffff;
-  --color-secondary:       #facc15;
-  --color-secondary-content: #78350f;
-  --color-accent:          #16a34a;
+  --color-secondary:       #eab308;
+  --color-secondary-content: #713f12;
+  --color-accent:          #10b981;
   --color-accent-content:  #ffffff;
 
   /* Dark Surfaces */
-  --color-base-100: #0f172a; /* slate-900 */
-  --color-base-200: #1e293b; /* slate-800 */
-  --color-base-300: #334155; /* slate-700 */
-  --color-base-content: #f8fafc; /* slate-50 */
+  --color-base-100: #0f172a;
+  --color-base-200: #1e293b;
+  --color-base-300: #334155;
+  --color-base-content: #f8fafc;
 
   /* Semantic */
-  --color-success: #16a34a;
-  --color-warning: #d97706;
-  --color-error:   #dc2626;
-  --color-info:    #0284c7;
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error:   #f43f5e;
+  --color-info:    #38bdf8;
 
   /* Shape system */
   --radius-box:    1rem;
-  --radius-btn:    0.75rem;
+  --radius-btn:    0.875rem;
   --radius-badge:  9999px;
 }
 
@@ -83,13 +83,41 @@ body {
   min-height: 100vh;
   font-family: var(--font-inter, ui-sans-serif, system-ui, sans-serif);
   -webkit-font-smoothing: antialiased;
-  color: #1f2937;
+  color: #0f172a;
   background-color: #ffffff;
 }
 
 html[data-theme="agrocapital-dark"] body {
   color: #f8fafc;
   background-color: #0f172a;
+}
+
+/* ─── Clean browser autofill background ────────────────── */
+input:-webkit-autofill,
+input:-webkit-autofill:hover, 
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0px 1000px #f8fafc inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+/* ─── Alert Refinements (Modern, Readable, Harmonious) ── */
+.alert-error {
+  background-color: #fff1f2 !important;
+  border: 1px solid #fecdd3 !important;
+  color: #be123c !important;
+  border-radius: 1rem !important;
+  font-weight: 600 !important;
+}
+
+.alert-success {
+  background-color: #ecfdf5 !important;
+  border: 1px solid #a7f3d0 !important;
+  color: #047857 !important;
+  border-radius: 1rem !important;
+  font-weight: 600 !important;
 }
 
 /* ─── Dark Mode Component Overrides ─────────────────────── */
@@ -123,14 +151,13 @@ html[data-theme="agrocapital-dark"] .select {
   color: #f8fafc;
 }
 
-
 /* ─── Typography utilities ──────────────────────────────── */
 @utility text-eyebrow {
   font-size: 0.6875rem;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--color-primary);
+  color: #059669;
 }
 
 @utility text-hero {
@@ -160,13 +187,23 @@ html[data-theme="agrocapital-dark"] .select {
 }
 
 @utility text-muted {
-  color: #4b5563;
+  color: #64748b;
 }
 
 /* ─── Component overrides ───────────────────────────────── */
 .btn {
   font-weight: 700;
   letter-spacing: 0.01em;
+}
+
+.btn-primary {
+  background-color: #059669;
+  border-color: #059669;
+  color: #ffffff;
+}
+.btn-primary:hover {
+  background-color: #047857;
+  border-color: #047857;
 }
 
 .btn-lg {
@@ -177,19 +214,20 @@ html[data-theme="agrocapital-dark"] .select {
 
 /* Input / select consistent sizing */
 .input, .select {
-  border-color: #e5e7eb;
+  border-color: #e2e8f0;
+  border-radius: 0.875rem;
 }
 .input:focus, .select:focus {
-  border-color: var(--color-primary);
+  border-color: #059669;
   outline: none;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+  box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.12);
 }
 
 /* Progress bar */
-.progress-primary::-webkit-progress-value { background-color: var(--color-primary); }
-.progress-primary::-moz-progress-bar { background-color: var(--color-primary); }
+.progress-primary::-webkit-progress-value { background-color: #059669; }
+.progress-primary::-moz-progress-bar { background-color: #059669; }
 
 /* ─── Scrollbar (webkit) ────────────────────────────────── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 9999px; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
