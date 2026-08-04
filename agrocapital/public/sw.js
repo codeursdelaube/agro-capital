@@ -1,4 +1,4 @@
-const CACHE_NAME = "agrocapital-v3";
+const CACHE_NAME = "agrocapital-v4";
 const STATIC_ASSETS = [
   "/",
   "/fr",
@@ -25,7 +25,7 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Activation : prise de contrôle immédiate & nettoyage des anciens caches
+// Activation : prise de contrôle immédiate & nettoyage des anciens caches (v1, v2, v3)
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -48,7 +48,7 @@ self.addEventListener("message", (event) => {
   }
 });
 
-// Interception des requêtes HTTP : Caching optimisé & Protection Hors-Ligne Infaillible
+// Interception des requêtes HTTP : Caching optimisé & Navigation Hors-Ligne Propre
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
@@ -71,21 +71,14 @@ self.addEventListener("fetch", (event) => {
         })
         .catch(async () => {
           // A. Cherche la page exacte demandée dans le cache (ex: /fr/sante-culture)
-          const cachedRequest = await caches.match(request);
+          const cachedRequest = await caches.match(request, { ignoreSearch: true });
           if (cachedRequest) return cachedRequest;
 
-          // B. Cherche la page demandée sans la chaîne de requête
-          const cachedUrl = await caches.match(url.pathname);
+          // B. Cherche la page demandée sans le pathname de locale ou paramètres
+          const cachedUrl = await caches.match(url.pathname, { ignoreSearch: true });
           if (cachedUrl) return cachedUrl;
 
-          // C. Cherche la page d'accueil bilingue en cache
-          const cachedHomeFr = await caches.match("/fr");
-          if (cachedHomeFr) return cachedHomeFr;
-
-          const cachedHomeRoot = await caches.match("/");
-          if (cachedHomeRoot) return cachedHomeRoot;
-
-          // D. Fallback ultime : Affiche la page offline personnalisée d'Agro-Capital (JAMAIS l'écran noir de Chrome !)
+          // C. Fallback ultime : Affiche la page offline dédiée d'Agro-Capital (Ne redirige PAS vers l'accueil !)
           const offlinePage = await caches.match("/offline.html");
           if (offlinePage) return offlinePage;
 
@@ -106,7 +99,38 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 2. Ressources statiques (images, polices, CSS, scripts JS, Next static) : Stale While Revalidate / Cache First
+  // 2. Requêtes RSC (React Server Components Next.js ?_rsc=...) & Données de navigation Next.js
+  if (url.searchParams.has("_rsc") || request.headers.get("RSC")) {
+    event.respondWith(
+      fetch(request)
+        .then((networkResponse) => {
+          if (networkResponse && networkResponse.status === 200) {
+            const responseClone = networkResponse.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(request, responseClone));
+          }
+          return networkResponse;
+        })
+        .catch(async () => {
+          const cachedRsc = await caches.match(request, { ignoreSearch: true });
+          if (cachedRsc) return cachedRsc;
+
+          const cachedUrlRsc = await caches.match(url.pathname, { ignoreSearch: true });
+          if (cachedUrlRsc) return cachedUrlRsc;
+
+          // Si payload RSC introuvable hors-ligne, retourne une réponse vide ou le fallback offline
+          const offlinePage = await caches.match("/offline.html");
+          if (offlinePage) return offlinePage;
+
+          return new Response(JSON.stringify({ offline: true }), {
+            headers: { "Content-Type": "application/json" },
+            status: 200,
+          });
+        })
+    );
+    return;
+  }
+
+  // 3. Ressources statiques (images, polices, CSS, scripts JS, Next static) : Stale While Revalidate / Cache First
   if (
     request.destination === "image" ||
     request.destination === "font" ||
@@ -115,7 +139,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/_next/static")
   ) {
     event.respondWith(
-      caches.match(request).then((cachedResponse) => {
+      caches.match(request, { ignoreSearch: true }).then((cachedResponse) => {
         if (cachedResponse) {
           fetch(request)
             .then((networkResponse) => {
@@ -139,7 +163,7 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // 3. Requêtes API : Network First -> Cache Fallback
+  // 4. Requêtes API : Network First -> Cache Fallback
   event.respondWith(
     fetch(request)
       .then((networkResponse) => {
@@ -150,7 +174,7 @@ self.addEventListener("fetch", (event) => {
         return networkResponse;
       })
       .catch(() => {
-        return caches.match(request).then((cachedResponse) => {
+        return caches.match(request, { ignoreSearch: true }).then((cachedResponse) => {
           if (cachedResponse) {
             return cachedResponse;
           }
