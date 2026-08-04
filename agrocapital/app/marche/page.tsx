@@ -8,6 +8,8 @@ import { PriceChart, PrixPoint, PredictionPoint } from "@/_components/price-char
 import { PedagogicTooltip } from "@/_components/tooltip";
 import { formatFcfa } from "@/_lib/utils";
 
+import { MarketRadarCharts, CultureRadarSummary } from "@/_components/market-radar-charts";
+
 const CULTURES_LIST = ["Maïs", "Soja", "Riz", "Mil", "Niébé"];
 
 type RadarData = {
@@ -36,11 +38,13 @@ export default function MarchePage() {
   const [historique, setHistorique] = useState<PrixPoint[]>([]);
   const [predictions, setPredictions] = useState<PredictionPoint[]>([]);
   const [radar, setRadar] = useState<RadarData | null>(null);
+  const [allCulturesData, setAllCulturesData] = useState<CultureRadarSummary[]>([]);
   const [loading, setLoading] = useState(true);
 
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
+      // 1. Récupération des données pour la culture sélectionnée
       const [resPrix, resPred, resRadar] = await Promise.all([
         fetch(`/api/marche/prix?culture=${encodeURIComponent(culture)}`),
         fetch(`/api/marche/predictions?culture=${encodeURIComponent(culture)}`),
@@ -65,8 +69,40 @@ export default function MarchePage() {
         const jsonRadar = await resRadar.json();
         setRadar(jsonRadar.data ?? null);
       }
+
+      // 2. Récupération des prédictions FastAPI pour toutes les cultures (Bâtons et Camemberts)
+      const radarPromises = CULTURES_LIST.map(async (c) => {
+        try {
+          const res = await fetch("/api/marche/radar", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ culture: c }),
+          });
+          if (res.ok) {
+            const json = await res.json();
+            const data = json.data;
+            if (data?.prediction && data?.scoreVente) {
+              return {
+                culture: c,
+                prixActuel: data.prediction.prix_actuel,
+                prixPrevuJ15: data.prediction.prix_prevu_j15,
+                tendance: data.prediction.tendance,
+                scoreVente: data.scoreVente.score,
+                confiance: data.prediction.confiance,
+              } as CultureRadarSummary;
+            }
+          }
+        } catch {
+          // Fallback silencieux en cas d'erreur ponctuelle
+        }
+        return null;
+      });
+
+      const results = await Promise.all(radarPromises);
+      const validResults = results.filter((r): r is CultureRadarSummary => r !== null);
+      setAllCulturesData(validResults);
     } catch (e) {
-      console.error("Erreur lors de la récupération des prix", e);
+      console.error("Erreur lors de la récupération des prix et du radar", e);
     } finally {
       setLoading(false);
     }
@@ -205,6 +241,22 @@ export default function MarchePage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* DIAGRAMMES CIRCULAIRE ET EN BÂTONS (FASTAPI MARKET-RADAR) */}
+        {radar && allCulturesData.length > 0 && (
+          <MarketRadarCharts
+            currentRadar={{
+              culture: radar.prediction.culture,
+              prixActuel: radar.prediction.prix_actuel,
+              prixPrevuJ15: radar.prediction.prix_prevu_j15,
+              tendance: radar.prediction.tendance,
+              confiance: radar.prediction.confiance,
+              score: radar.scoreVente.score,
+              interpretation: radar.scoreVente.interpretation,
+            }}
+            allCulturesData={allCulturesData}
+          />
         )}
 
         {/* Carte graphique */}
