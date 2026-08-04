@@ -580,5 +580,12 @@
   "Splash": {
     "tagline": "La plateforme numérique & assistant IA des agriculteurs togolais 🇹🇬",
     "subtitle": "Connexion au marché · Avance cash · Diagnostic de cultures"
+  },
+
+  "Pwa": {
+    "installApp": "Installer l'App Mobile",
+    "installAppSub": "Installez Agro-Capital sur votre téléphone pour un accès instantané même hors-ligne.",
+    "appInstalled": "App Agro-Capital Installée",
+    "installInstructionsAlert": "Pour installer Agro-Capital : appuyez sur le menu de votre navigateur puis sélectionnez 'Ajouter à l'écran d'accueil' ou 'Installer l'application'."
   }
 }

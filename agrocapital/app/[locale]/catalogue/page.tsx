@@ -17,6 +17,7 @@ type Produit = {
   uniteMesure: string;
   quantiteDisponible: number;
   statut: string;
+  photoUrl?: string | null;
   boutique: {
     id: string;
     nom: string;
@@ -180,49 +181,73 @@ function CatalogueForm() {
             <p className="text-sm font-semibold text-muted">{t("noProducts")}</p>
           </div>
         ) : (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {produits.map((p) => {
               const estDispo = p.statut === "DISPONIBLE" && p.quantiteDisponible > 0;
+              const photoSrc =
+                p.photoUrl ||
+                (p.culture?.toLowerCase().includes("maï") || p.culture?.toLowerCase().includes("corn")
+                  ? "/illustartion1.png"
+                  : p.culture?.toLowerCase().includes("manioc") || p.culture?.toLowerCase().includes("cassava")
+                  ? "/illustartion3.png"
+                  : "/illustartion2.png");
+
               return (
-                <div key={p.id} className="card bg-white border border-base-200 p-5 space-y-3 shadow-xs">
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <span className="badge badge-sm badge-outline font-bold text-primary mb-1">
+                <div key={p.id} className="card bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col justify-between">
+                  {/* Photo du produit */}
+                  <div className="relative h-48 w-full bg-slate-100 overflow-hidden">
+                    <img
+                      src={photoSrc}
+                      alt={p.nom}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="badge bg-white/90 backdrop-blur-md font-extrabold text-emerald-800 border border-emerald-200 shadow-xs px-3 py-1.5 rounded-full text-xs">
                         {p.culture}
                       </span>
-                      <h3 className="font-bold text-lg text-base-content">{p.nom}</h3>
                     </div>
-                    <span className={`badge border-0 font-bold text-xs ${estDispo ? "bg-primary/10 text-primary" : "bg-error/20 text-error"}`}>
-                      {estDispo ? t("dispo", { count: p.quantiteDisponible }) : t("outOfStock")}
-                    </span>
+                    <div className="absolute top-3 right-3">
+                      <span className={`badge border-0 font-extrabold text-xs px-3 py-1 rounded-full shadow-xs ${estDispo ? "bg-emerald-600 text-white" : "bg-rose-600 text-white"}`}>
+                        {estDispo ? t("dispo", { count: p.quantiteDisponible }) : t("outOfStock")}
+                      </span>
+                    </div>
                   </div>
 
-                  <p className="text-2xl font-extrabold text-primary">
-                    {formatFcfa(p.prixUnitaire)}{" "}
-                    <span className="text-xs text-muted font-normal">/ {p.uniteMesure}</span>
-                  </p>
+                  <div className="p-5 space-y-3 flex-1 flex flex-col justify-between">
+                    <div className="space-y-1">
+                      <h3 className="font-extrabold text-lg text-slate-900 leading-snug">{p.nom}</h3>
+                      {p.description && <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">{p.description}</p>}
+                    </div>
 
-                  <div className="flex items-center justify-between text-xs text-muted pt-2 border-t border-base-100">
-                    <span className="flex items-center gap-1 font-semibold text-base-content">
-                      <Store size={14} className="text-primary" />
-                      {p.boutique.nom} ({p.boutique.user.region})
-                    </span>
-                    <button
-                      onClick={() => handleSuivreAgriculteur(p.boutique.user.id)}
-                      className="btn btn-ghost btn-xs text-primary font-bold gap-1"
-                      title={t("followTooltip")}
-                    >
-                      <UserPlus size={12} /> {t("follow")}
-                    </button>
+                    <div className="space-y-3 pt-2">
+                      <p className="text-2xl font-black text-emerald-700">
+                        {formatFcfa(p.prixUnitaire)}{" "}
+                        <span className="text-xs text-slate-400 font-normal">/ {p.uniteMesure}</span>
+                      </p>
+
+                      <div className="flex items-center justify-between text-xs text-slate-500 pt-3 border-t border-slate-100">
+                        <span className="flex items-center gap-1 font-bold text-slate-700">
+                          <Store size={14} className="text-emerald-600" />
+                          {p.boutique.nom} ({p.boutique.user.region})
+                        </span>
+                        <button
+                          onClick={() => handleSuivreAgriculteur(p.boutique.user.id)}
+                          className="btn btn-ghost btn-xs text-emerald-600 font-bold gap-1"
+                          title={t("followTooltip")}
+                        >
+                          <UserPlus size={12} /> {t("follow")}
+                        </button>
+                      </div>
+
+                      <button
+                        onClick={() => handleOuvrirCommande(p)}
+                        disabled={!estDispo}
+                        className="btn bg-emerald-600 hover:bg-emerald-700 text-white border-0 btn-md w-full font-extrabold rounded-2xl shadow-md shadow-emerald-600/20 active:scale-95 transition-all"
+                      >
+                        <ShoppingBag size={18} /> {t("orderNow")}
+                      </button>
+                    </div>
                   </div>
-
-                  <button
-                    onClick={() => handleOuvrirCommande(p)}
-                    disabled={!estDispo}
-                    className="btn btn-primary btn-md w-full font-bold mt-2"
-                  >
-                    <ShoppingBag size={18} /> {t("orderNow")}
-                  </button>
                 </div>
               );
             })}

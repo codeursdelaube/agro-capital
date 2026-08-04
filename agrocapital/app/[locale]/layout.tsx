@@ -5,6 +5,7 @@ import { routing } from "@/i18n/routing";
 import { AppNav } from "@/_components/app-nav";
 import { LayoutShift } from "@/_components/layout-shift";
 import { SplashScreen } from "@/_components/splash-screen";
+import { SwRegister } from "@/_components/sw-register";
 import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "../globals.css";
@@ -25,6 +26,7 @@ const poppins = Poppins({
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: "#059669",
 };
 
 type Props = {
@@ -38,6 +40,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: t("title"),
     description: t("description"),
+    manifest: "/manifest.json",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "black-translucent",
+      title: "AgroCapital",
+    },
   };
 }
 
@@ -58,8 +66,15 @@ export default async function LocaleLayout({ children, params }: Props) {
 
   return (
     <html lang={locale} data-theme="agrocapital" className={`${inter.variable} ${poppins.variable}`}>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#059669" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      </head>
       <body className="min-h-screen bg-base-100 text-base-content antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
+          <SwRegister />
           <SplashScreen>
             <AppNav />
             {/* LayoutShift ajoute md:pl-56 uniquement si l'utilisateur est connecté */}

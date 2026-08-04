@@ -580,5 +580,12 @@
   "Splash": {
     "tagline": "Togo's agricultural digital marketplace & AI assistant 🇹🇬",
     "subtitle": "Connecting markets · Cash advance · Crop diagnostics"
+  },
+
+  "Pwa": {
+    "installApp": "Install Mobile App",
+    "installAppSub": "Install Agro-Capital on your phone for instant offline access.",
+    "appInstalled": "Agro-Capital App Installed",
+    "installInstructionsAlert": "To install Agro-Capital: tap your browser menu and select 'Add to Home Screen' or 'Install Application'."
   }
 }

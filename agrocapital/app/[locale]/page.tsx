@@ -21,6 +21,7 @@ import { motion, useScroll, useTransform, type Variants } from "motion/react";
 import { useCurrentUser } from "@/_hooks/useCurrentUser";
 import { formatFcfa } from "@/_lib/utils";
 import { useTranslations } from "next-intl";
+import { PwaInstallButton } from "@/_components/pwa-install-button";
 
 
 // ─── Animation Variants ───────────────────────────────────────────────────────
@@ -171,6 +172,7 @@ function HeroPublic() {
                 {t("ctaStart")}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
+              <PwaInstallButton />
               <Link
                 href="/connexion"
                 id="cta-connexion-hero"
@@ -772,6 +774,7 @@ function CTASection() {
           >
             {t("ctaFinalCreate")} <ArrowRight size={18} />
           </Link>
+          <PwaInstallButton />
           <Link
             href="/marche"
             id="cta-marche-public"
