@@ -74,7 +74,7 @@ def _call_gemini_sync(prompt: str, system_context: str = "") -> str:
             + prompt
         )
         response = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash",
             contents=full_prompt,
             config=_GENERATION_CONFIG,
         )
@@ -148,7 +148,7 @@ async def generate_text(task_description: str, context: str, max_tokens: int = 1
                 max_output_tokens=max_tokens,
             )
             response = client.models.generate_content(
-                model="gemini-1.5-flash",
+                model="gemini-2.5-flash",
                 contents=full_prompt,
                 config=config,
             )
