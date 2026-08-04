@@ -154,6 +154,10 @@ export function AppNav() {
   const locale = useLocale();
 
   const switchLocale = (newLocale: string) => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("locale", newLocale);
+      document.cookie = `NEXT_LOCALE=${newLocale}; path=/; max-age=31536000; SameSite=Lax`;
+    }
     const newPathname = pathname.replace(/^\/(fr|en)(\/|$)/, `/${newLocale}$2`);
     router.push(newPathname || `/${newLocale}`);
   };
