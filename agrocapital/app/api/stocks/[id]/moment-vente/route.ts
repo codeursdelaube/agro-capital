@@ -1,8 +1,8 @@
 import { requireAuth } from "@/_lib/auth";
 import { getMeilleurMomentVente } from "@/_lib/agro-pilot-client";
-import { ok, handleError } from "@/_lib/api-helpers";
+import { ok, err, handleError } from "@/_lib/api-helpers";
 
-/** GET /api/stocks/[id]/moment-vente — Proxy serveur pour le meilleur moment de vente d'un stock */
+/** GET /api/stocks/[id]/moment-vente — Transmet directement à GET /agro-pilot/meilleur-moment-vente de FastAPI Railway */
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> }
@@ -13,21 +13,11 @@ export async function GET(
 
     const result = await getMeilleurMomentVente(user.id, id);
 
-    if (result) {
-      return ok(result);
+    if (!result) {
+      return err("Impossible d'obtenir l'opportunité de vente depuis le service FastAPI Railway.", 502);
     }
 
-    // Fallback dynamique
-    return ok({
-      culture: "Maïs",
-      stock_kg: 1000,
-      valeur_estimee_fcfa: 350000,
-      date_optimale: new Date(Date.now() + 45 * 86400000).toLocaleDateString("fr-FR"),
-      delai_jours: 45,
-      prix_estime_fcfa: 410,
-      variation_esperee_pct: 17.1,
-      justification: "Une hausse forte de la demande régionale est projetée dans 45 jours.",
-    });
+    return ok(result);
   } catch (error) {
     return handleError(error);
   }

@@ -14,8 +14,8 @@ import {
   User,
   Copy,
   Check,
-  AlertTriangle,
-  FileText,
+  ShoppingBag,
+  Store,
   RefreshCw,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -48,6 +48,8 @@ type DossierData = {
 
 export default function AgroPilotPage() {
   const { user } = useCurrentUser();
+  const isClient = user?.role === "CLIENT";
+
   const [activeTab, setActiveTab] = useState<"chat" | "financement" | "risques">("chat");
 
   // State Chat
@@ -56,7 +58,7 @@ export default function AgroPilotPage() {
   const [loadingChat, setLoadingChat] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  // State Financement
+  // State Financement (Agriculteur)
   const [typeDemande, setTypeDemande] = useState<"pret_agricole" | "subvention" | "microfinance">("pret_agricole");
   const [dossier, setDossier] = useState<DossierData | null>(null);
   const [loadingDossier, setLoadingDossier] = useState(false);
@@ -74,19 +76,23 @@ export default function AgroPilotPage() {
     scrollToBottom();
   }, [messages, loadingChat]);
 
-  // Initialisation du chat avec message bienveillant
+  // Message d'accueil personnalisé selon le rôle
   useEffect(() => {
     if (user && messages.length === 0) {
+      const welcomeText = isClient
+        ? `Bonjour **${user.nom}** ! Je suis **Agro-Pilot**, votre conseiller d'achat intelligent à **${user.region}**.\n\nJe surveille les prix des cultures vivrières et l'arrivée des récoltes directes des producteurs togolais pour vous aider à acheter au meilleur prix.`
+        : `Bonjour **${user.nom}** ! Je suis **Agro-Pilot**, votre conseiller agricole personnel.\n\nJe suis directement connecté à votre exploitation à **${user.region}**. Posez-moi vos questions sur le marché, vos stocks ou vos démarches.`;
+
       setMessages([
         {
           id: "welcome-1",
           sender: "bot",
-          text: `Bonjour **${user.nom}** ! Je suis **Agro-Pilot**, votre conseiller agricole virtuel.\n\nJe suis directement connecté à votre compte et à la région **${user.region}**. Posez-moi vos questions sur le marché, vos récoltes ou vos démarches.`,
+          text: welcomeText,
           timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         },
       ]);
     }
-  }, [user, messages.length]);
+  }, [user, messages.length, isClient]);
 
   // Chargement de l'analyse de risque au changement d'onglet
   useEffect(() => {
@@ -165,7 +171,7 @@ export default function AgroPilotPage() {
     }
   }, [input, loadingChat]);
 
-  // Génération de dossier de financement
+  // Génération de dossier de financement (Agriculteur uniquement)
   const handleGenerateDossier = async () => {
     setLoadingDossier(true);
     setCopied(false);
@@ -197,51 +203,57 @@ export default function AgroPilotPage() {
   return (
     <PageShell>
       <div className="space-y-6 max-w-5xl mx-auto">
-        {/* Header Persona Simplicité */}
+        {/* Header adapté selon le rôle */}
         <div className="rounded-3xl bg-gradient-to-r from-emerald-800 to-emerald-950 p-6 sm:p-8 text-white shadow-xl">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3.5 py-1.5 text-xs font-bold text-emerald-300 border border-emerald-500/30">
               <Sparkles size={14} className="text-emerald-400" />
-              Agro-Pilot — Assistant Intelligent
+              Agro-Pilot — {isClient ? "Conseiller d'Achat IA" : "Assistant Agricole IA"}
             </div>
             {user && (
               <div className="text-xs font-semibold text-emerald-200 bg-white/10 px-3 py-1 rounded-full">
-                {user.nom} ({user.region})
+                {user.nom} ({isClient ? "Acheteur" : "Agriculteur"} · {user.region})
               </div>
             )}
           </div>
           <h1 className="mt-3 text-2xl sm:text-3xl font-extrabold text-white">
-            Votre conseiller agricole personnel
+            {isClient ? "Votre assistant intelligent d'achat" : "Votre conseiller agricole personnel"}
           </h1>
           <p className="mt-1 text-sm text-emerald-100 max-w-xl">
-            Posez une question, créez un dossier de prêt ou analysez les risques de votre exploitation sans saisie complexe.
+            {isClient
+              ? "Posez vos questions sur la disponibilité des récoltes, les prix du marché et le suivi de vos commandes."
+              : "Posez une question sur le marché, vos stocks, ou constituez un dossier de prêt bancaire sans saisie complexe."}
           </p>
 
-          {/* Onglets principaux — Grandes zones cliquables */}
-          <div className="grid grid-cols-3 gap-2 mt-6 bg-white/10 p-1.5 rounded-2xl backdrop-blur-md">
+          {/* Onglets principaux adaptés (Si Client : Chat + Risques Marché uniquement) */}
+          <div className={`grid gap-2 mt-6 bg-white/10 p-1.5 rounded-2xl backdrop-blur-md ${isClient ? "grid-cols-2" : "grid-cols-3"}`}>
             <button
               onClick={() => setActiveTab("chat")}
               className={`btn btn-md font-bold rounded-xl border-0 ${
                 activeTab === "chat" ? "bg-white text-emerald-900 shadow-md" : "text-white hover:bg-white/10"
               }`}
             >
-              <Bot size={18} /> Chat Conseiller
+              <Bot size={18} /> {isClient ? "Chat Assistant Achat" : "Chat Conseiller"}
             </button>
-            <button
-              onClick={() => setActiveTab("financement")}
-              className={`btn btn-md font-bold rounded-xl border-0 ${
-                activeTab === "financement" ? "bg-white text-emerald-900 shadow-md" : "text-white hover:bg-white/10"
-              }`}
-            >
-              <Landmark size={18} /> Dossier Prêt
-            </button>
+
+            {!isClient && (
+              <button
+                onClick={() => setActiveTab("financement")}
+                className={`btn btn-md font-bold rounded-xl border-0 ${
+                  activeTab === "financement" ? "bg-white text-emerald-900 shadow-md" : "text-white hover:bg-white/10"
+                }`}
+              >
+                <Landmark size={18} /> Dossier Prêt
+              </button>
+            )}
+
             <button
               onClick={() => setActiveTab("risques")}
               className={`btn btn-md font-bold rounded-xl border-0 ${
                 activeTab === "risques" ? "bg-white text-emerald-900 shadow-md" : "text-white hover:bg-white/10"
               }`}
             >
-              <ShieldCheck size={18} /> Risques
+              <ShieldCheck size={18} /> {isClient ? "Prix & Tendances" : "Risques Exploitation"}
             </button>
           </div>
         </div>
@@ -249,6 +261,31 @@ export default function AgroPilotPage() {
         {/* ─── CONTENU ONGLET 1 : CHAT SIMPLE ──────────────────────────────── */}
         {activeTab === "chat" && (
           <div className="card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl shadow-lg overflow-hidden flex flex-col min-h-[500px]">
+            {/* Raccourcis rapides d'achat pour les clients */}
+            {isClient && (
+              <div className="p-3 bg-emerald-50/60 border-b border-emerald-100 flex flex-wrap gap-2 text-xs font-bold">
+                <span className="text-emerald-900 flex items-center gap-1 self-center">💡 Suggestions d&apos;achats :</span>
+                <button
+                  onClick={() => handleSendChat("Quand acheter le maïs au meilleur prix ce mois-ci ?")}
+                  className="btn btn-xs bg-white text-emerald-800 border-emerald-200 hover:bg-emerald-100 font-semibold rounded-lg"
+                >
+                  🌾 Prix du Maïs à {user?.region}
+                </button>
+                <button
+                  onClick={() => handleSendChat("Où trouver des produits disponibles immédiatement ?")}
+                  className="btn btn-xs bg-white text-emerald-800 border-emerald-200 hover:bg-emerald-100 font-semibold rounded-lg"
+                >
+                  🛒 Produits disponibles
+                </button>
+                <button
+                  onClick={() => handleSendChat("Comment se passe le paiement Mobile Money à la livraison ?")}
+                  className="btn btn-xs bg-white text-emerald-800 border-emerald-200 hover:bg-emerald-100 font-semibold rounded-lg"
+                >
+                  📲 Paiement Mobile Money
+                </button>
+              </div>
+            )}
+
             {/* Bulles de dialogue */}
             <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4 max-h-[500px]">
               {messages.map((m) => (
@@ -277,7 +314,7 @@ export default function AgroPilotPage() {
 
                     {m.contexteUtilise && (
                       <div className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-100 dark:bg-emerald-950/60 dark:text-emerald-300 px-2 py-0.5 rounded-md">
-                        <Check size={12} /> Agro-Pilot a utilisé vos données de stock & marché
+                        <Check size={12} /> Agro-Pilot a utilisé les données régionales
                       </div>
                     )}
                   </div>
@@ -291,7 +328,7 @@ export default function AgroPilotPage() {
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-3xl rounded-tl-xs border border-slate-200 text-xs font-bold text-slate-600 dark:text-slate-300 flex items-center gap-2">
                     <span className="loading loading-dots loading-sm text-emerald-600" />
-                    Analyse en cours... Un instant svp
+                    Analyse des opportunités d&apos;achat en cours...
                   </div>
                 </div>
               )}
@@ -308,7 +345,7 @@ export default function AgroPilotPage() {
             >
               <input
                 type="text"
-                placeholder="Posez votre question à Agro-Pilot..."
+                placeholder={isClient ? "Posez votre question sur les produits ou les prix..." : "Posez votre question à Agro-Pilot..."}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 className="input input-bordered input-lg flex-1 text-sm font-semibold text-slate-900 bg-slate-50 focus:bg-white border-slate-200 focus:border-emerald-600 rounded-2xl"
@@ -324,8 +361,8 @@ export default function AgroPilotPage() {
           </div>
         )}
 
-        {/* ─── CONTENU ONGLET 2 : GENERATEUR DOSSIER FINANCEMENT ────────────── */}
-        {activeTab === "financement" && (
+        {/* ─── CONTENU ONGLET 2 : GENERATEUR DOSSIER FINANCEMENT (AGRICULTEUR SEULEMENT) ─── */}
+        {!isClient && activeTab === "financement" && (
           <div className="card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-6 shadow-md">
             <div>
               <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
@@ -390,7 +427,7 @@ export default function AgroPilotPage() {
                 <span className="loading loading-spinner loading-sm" />
               ) : (
                 <>
-                  <FileText size={18} /> Générer mon dossier avec mes données
+                  <Copy size={18} /> Générer mon dossier avec mes données
                 </>
               )}
             </button>
@@ -435,15 +472,17 @@ export default function AgroPilotPage() {
           </div>
         )}
 
-        {/* ─── CONTENU ONGLET 3 : ANALYSE DES RISQUES ─────────────────────── */}
+        {/* ─── CONTENU ONGLET 3 : ANALYSE DES RISQUES & TENDANCES ─────────── */}
         {activeTab === "risques" && (
           <div className="card bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 rounded-3xl space-y-6 shadow-md">
             <div>
               <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">
-                Analyse Globale des Risques
+                {isClient ? "Tendances des Prix & Marché" : "Analyse Globale des Risques"}
               </h2>
               <p className="text-xs text-slate-500 mt-1">
-                Évaluation automatique des risques climatiques et de marché sur votre exploitation.
+                {isClient
+                  ? "Suivi de l'évolution des prix et des opportunités d'achat en direct."
+                  : "Évaluation automatique des risques climatiques et de marché sur votre exploitation."}
               </p>
             </div>
 
@@ -453,7 +492,7 @@ export default function AgroPilotPage() {
               </div>
             ) : risques ? (
               <div className="space-y-6">
-                {/* Niveau de risque global avec code couleur */}
+                {/* Niveau de risque global */}
                 <div
                   className={`p-5 rounded-2xl border flex items-center justify-between ${
                     risques.niveau_risque_global === "faible"
@@ -464,11 +503,11 @@ export default function AgroPilotPage() {
                   }`}
                 >
                   <div>
-                    <span className="text-xs font-bold uppercase block opacity-75">Niveau de risque global</span>
+                    <span className="text-xs font-bold uppercase block opacity-75">Stabilité du marché</span>
                     <strong className="text-2xl font-black uppercase">{risques.niveau_risque_global}</strong>
                   </div>
                   <div className="text-right">
-                    <span className="text-xs font-bold block opacity-75">Score de risque</span>
+                    <span className="text-xs font-bold block opacity-75">Indice de variabilité</span>
                     <strong className="text-3xl font-black">{risques.score_risque} / 100</strong>
                   </div>
                 </div>
@@ -477,7 +516,7 @@ export default function AgroPilotPage() {
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div className="card bg-slate-50 dark:bg-slate-800 p-4 border border-slate-200 rounded-2xl space-y-2">
                     <h3 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
-                      <TrendingUp size={16} className="text-emerald-600" /> Risques de Marché
+                      <TrendingUp size={16} className="text-emerald-600" /> Tendances des Cours
                     </h3>
                     <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                       {risques.risques_marche.map((rm, i) => (
@@ -490,7 +529,7 @@ export default function AgroPilotPage() {
 
                   <div className="card bg-slate-50 dark:bg-slate-800 p-4 border border-slate-200 rounded-2xl space-y-2">
                     <h3 className="font-bold text-xs text-slate-900 dark:text-white flex items-center gap-1.5">
-                      <CloudSun size={16} className="text-teal-600" /> Risques Climatiques
+                      <CloudSun size={16} className="text-teal-600" /> Impact Météo Régionale
                     </h3>
                     <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
                       {risques.risques_climatiques.map((rc, i) => (

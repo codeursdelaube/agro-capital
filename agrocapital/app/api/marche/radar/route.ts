@@ -1,7 +1,7 @@
 import { predictMarketRadar, getScoreVente } from "@/_lib/agro-pilot-client";
-import { ok, handleError } from "@/_lib/api-helpers";
+import { ok, err, handleError } from "@/_lib/api-helpers";
 
-/** POST /api/marche/radar — Prédiction et score de marché */
+/** POST /api/marche/radar — Transmet directement aux endpoints Market Radar de FastAPI Railway */
 export async function POST(req: Request) {
   try {
     const { culture, region } = await req.json();
@@ -13,25 +13,13 @@ export async function POST(req: Request) {
       getScoreVente(targetCulture, targetRegion),
     ]);
 
+    if (!predict || !score) {
+      return err("Impossible d'obtenir les prédictions Market Radar depuis le service FastAPI Railway.", 502);
+    }
+
     return ok({
-      prediction: predict || {
-        culture: targetCulture,
-        region: targetRegion,
-        tendance: "hausse",
-        confiance: 0.85,
-        prix_actuel: 350,
-        prix_prevu_j15: 380,
-        recommandation: "Conservez vos stocks pendant 15 jours. Une hausse de 8.5% est projetée.",
-        donnees_demo: true,
-      },
-      scoreVente: score || {
-        culture: targetCulture,
-        region: targetRegion,
-        score: 78,
-        interpretation: "attendre",
-        justification: "Le marché est orienté à la hausse. Patientez quelques semaines.",
-        donnees_demo: true,
-      },
+      prediction: predict,
+      scoreVente: score,
     });
   } catch (error) {
     return handleError(error);

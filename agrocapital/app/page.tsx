@@ -358,8 +358,101 @@ function HeroClient({ nom }: { nom: string }) {
   );
 }
 
+// ─── Données features filtrées selon le rôle ──────────────────────────────────
+const featuresAgri = [
+  {
+    icon: Sparkles,
+    color: "bg-emerald-100 text-emerald-800",
+    title: "Agro-Pilot IA",
+    desc: "Votre assistant virtuel intelligent : opportunités de vente, météo et prêts bancaires.",
+    href: "/agro-pilot",
+  },
+  {
+    icon: BarChart3,
+    color: "bg-teal-100 text-teal-700",
+    title: "Market Radar",
+    desc: "Suivez les prix en temps réel et recevez des prédictions de cours.",
+    href: "/marche",
+  },
+  {
+    icon: WalletCards,
+    color: "bg-yellow-100 text-yellow-700",
+    title: "Cash Immédiat",
+    desc: "Obtenez une avance de trésorerie certifiée sur votre stock physique.",
+    href: "/nantissement",
+  },
+  {
+    icon: Store,
+    color: "bg-blue-100 text-blue-700",
+    title: "Ma Boutique Vitrine",
+    desc: "Gérez vos produits en ligne et recevez le paiement des clients par Mobile Money.",
+    href: "/boutique",
+  },
+  {
+    icon: Tag,
+    color: "bg-purple-100 text-purple-700",
+    title: "Préventes & Récoltes",
+    desc: "Annoncez vos récoltes futures et permettez aux acheteurs de réserver en avance.",
+    href: "/annonces",
+  },
+  {
+    icon: Calculator,
+    color: "bg-indigo-100 text-indigo-700",
+    title: "Simulateur Vente",
+    desc: "Calculez vos marges nettes et votre rentabilité par récolte.",
+    href: "/simulateur",
+  },
+];
+
+const featuresClient = [
+  {
+    icon: ShoppingBag,
+    color: "bg-emerald-100 text-emerald-800",
+    title: "Catalogue Direct",
+    desc: "Achetez directement des produits vivriers auprès des agriculteurs togolais.",
+    href: "/catalogue",
+  },
+  {
+    icon: Sparkles,
+    color: "bg-teal-100 text-teal-800",
+    title: "Agro-Pilot (Conseiller Achat)",
+    desc: "Votre assistant intelligent pour repérer les meilleures opportunités d'achat.",
+    href: "/agro-pilot",
+  },
+  {
+    icon: Store,
+    color: "bg-blue-100 text-blue-700",
+    title: "Annuaire des Boutiques",
+    desc: "Découvrez les boutiques des producteurs de Lomé, Kara et des autres régions.",
+    href: "/boutique",
+  },
+  {
+    icon: BarChart3,
+    color: "bg-purple-100 text-purple-700",
+    title: "Prix du Marché",
+    desc: "Suivez les prix moyens des produits pour acheter au juste prix.",
+    href: "/marche",
+  },
+  {
+    icon: Tag,
+    color: "bg-yellow-100 text-yellow-700",
+    title: "Récoltes à venir",
+    desc: "Réservez les récoltes des agriculteurs avant même qu'elles n'arrivent sur le marché.",
+    href: "/annonces",
+  },
+  {
+    icon: ShoppingBag,
+    color: "bg-indigo-100 text-indigo-700",
+    title: "Mes Achats & Livraisons",
+    desc: "Suivez le statut de vos commandes et payez à la livraison par Mobile Money.",
+    href: "/commandes",
+  },
+];
+
 // ─── Section Features ─────────────────────────────────────────────────────────
-function FeaturesSection({ isConnected }: { isConnected: boolean }) {
+function FeaturesSection({ isConnected, userRole }: { isConnected: boolean; userRole?: string }) {
+  const currentFeatures = userRole === "CLIENT" ? featuresClient : featuresAgri;
+
   return (
     <section>
       <motion.div
@@ -370,17 +463,17 @@ function FeaturesSection({ isConnected }: { isConnected: boolean }) {
         className="mb-5"
       >
         <h2 className="text-xl font-extrabold text-slate-900">
-          {isConnected ? "Que voulez-vous faire ?" : "Tout ce dont vous avez besoin"}
+          {isConnected ? "Vos services disponibles" : "Tout ce dont vous avez besoin"}
         </h2>
         {!isConnected && (
           <p className="mt-1 text-sm text-slate-500">
-            Une plateforme complète, conçue pour les agriculteurs togolais.
+            Une plateforme complète, conçue pour les agriculteurs et acheteurs togolais.
           </p>
         )}
       </motion.div>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {features.map(({ icon: Icon, color, title, desc, href }, i) => (
+        {currentFeatures.map(({ icon: Icon, color, title, desc, href }, i) => (
           <motion.div
             key={href}
             variants={fadeUp}
@@ -540,12 +633,12 @@ function QuickActionsConnected({ isAgri }: { isAgri: boolean }) {
     { href: "/stocks/nouveau", label: "+ Déclarer un stock", color: "bg-emerald-600 text-white" },
     { href: "/boutique/produits", label: "Mes produits", color: "bg-white border border-slate-200 text-slate-800" },
     { href: "/nantissement", label: "Demander du cash", color: "bg-yellow-400 text-yellow-900" },
-    { href: "/marche", label: "Prix du marché", color: "bg-white border border-slate-200 text-slate-800" },
+    { href: "/agro-pilot", label: "Agro-Pilot IA", color: "bg-white border border-slate-200 text-slate-800" },
   ];
   const clientActions = [
     { href: "/catalogue", label: "Explorer le catalogue", color: "bg-emerald-600 text-white" },
-    { href: "/commandes", label: "Mes commandes", color: "bg-white border border-slate-200 text-slate-800" },
-    { href: "/annonces", label: "Récoltes à venir", color: "bg-yellow-400 text-yellow-900" },
+    { href: "/agro-pilot", label: "Agro-Pilot (Conseiller)", color: "bg-white border border-slate-200 text-slate-800" },
+    { href: "/commandes", label: "Mes achats & livraisons", color: "bg-yellow-400 text-yellow-900" },
     { href: "/marche", label: "Prix du marché", color: "bg-white border border-slate-200 text-slate-800" },
   ];
 
@@ -637,7 +730,7 @@ export default function Home() {
         {!user && <HowItWorksSection />}
 
         {/* ── Features / Que faire ── */}
-        <FeaturesSection isConnected={!!user} />
+        <FeaturesSection isConnected={!!user} userRole={user?.role} />
 
         {/* ── CTA final (visiteurs) ── */}
         {!user && <CTASection />}
