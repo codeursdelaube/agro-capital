@@ -51,7 +51,11 @@ function Stepper({ current, total }: { current: number; total: number }) {
   );
 }
 
+import { useTranslations } from "next-intl";
+
 export function CashRequestFlow() {
+  const t = useTranslations("CashFlow");
+  const tc = useTranslations("Common");
   const [step, setStep] = useState(1);
   const [stocks, setStocks] = useState<Stock[]>([]);
   const [loadingStocks, setLoadingStocks] = useState(true);
@@ -114,10 +118,10 @@ export function CashRequestFlow() {
         setSucces(true);
       } else {
         const json = await res.json();
-        setErreur(json.error ?? "Erreur lors de la soumission de la demande");
+        setErreur(json.error ?? t("defaultReason"));
       }
     } catch {
-      setErreur("Erreur réseau");
+      setErreur(tc("networkError"));
     } finally {
       setSoumission(false);
     }
@@ -134,13 +138,13 @@ export function CashRequestFlow() {
   if (stocks.length === 0) {
     return (
       <div className="card bg-white p-8 text-center space-y-4 border border-base-200">
-        <h2 className="text-h2">Aucun stock disponible</h2>
+        <h2 className="text-h2">{t("noStockTitle")}</h2>
         <p className="text-sm text-muted">
-          Vous devez déclarer un stock physique de récolte avant de pouvoir effectuer une demande de nantissement.
+          {t("noStockDesc")}
         </p>
         <Link href="/stocks/nouveau" className="btn btn-primary btn-md mx-auto">
           <PlusCircle size={18} />
-          Déclarer un stock
+          {t("declareStock")}
         </Link>
       </div>
     );
@@ -155,15 +159,14 @@ export function CashRequestFlow() {
       >
         <CheckCircle2 size={56} className="text-primary mx-auto" />
         <div>
-          <h2 className="text-h1">Demande soumise avec succès !</h2>
+          <h2 className="text-h1">{t("submitSuccessTitle")}</h2>
           <p className="mt-2 text-sm text-muted">
-            Votre demande de nantissement de <strong>{formatFcfa(montantDemande)}</strong> adossée à votre stock de{" "}
-            <strong>{selectedStock?.culture} ({selectedStock?.quantiteKg} kg)</strong> a été enregistrée.
+            {t("submitSuccessDesc", { amount: formatFcfa(montantDemande), culture: selectedStock?.culture ?? "", kg: selectedStock?.quantiteKg ?? 0 })}
           </p>
         </div>
         <div className="flex items-center justify-center gap-2 rounded-xl bg-base-200 px-4 py-3 text-sm font-semibold">
           <Smartphone size={18} className="text-primary" />
-          Débloqué après validation directe sur votre portefeuille bancaire.
+          {t("unlockedNotice")}
         </div>
       </motion.div>
     );
@@ -180,7 +183,7 @@ export function CashRequestFlow() {
 
         <div className="flex items-center justify-between">
           <Stepper current={step} total={3} />
-          <span className="text-xs font-semibold text-muted">Étape {step}/3</span>
+          <span className="text-xs font-semibold text-muted">{t("stepProgress", { current: step })}</span>
         </div>
 
         <AnimatePresence mode="wait">
@@ -196,9 +199,9 @@ export function CashRequestFlow() {
             {step === 1 && (
               <>
                 <div>
-                  <h2 className="text-h2">Sélectionnez le stock en garantie</h2>
+                  <h2 className="text-h2">{t("step1Heading")}</h2>
                   <p className="mt-1 text-sm text-muted">
-                    Le stock servira de garantie jusqu&apos;à la vente finale.
+                    {t("step1Sub")}
                   </p>
                 </div>
                 <div className="space-y-3">
@@ -226,7 +229,7 @@ export function CashRequestFlow() {
                             {s.culture} — {s.quantiteKg} kg
                           </strong>
                           <span className="mt-0.5 block text-sm text-muted">
-                            Valeur estimée : <strong>{formatFcfa(s.valeurEstimee)}</strong> (Plafond prêt 70% : {formatFcfa(s.valeurEstimee * 0.7)})
+                            {t("estimatedVal", { val: formatFcfa(s.valeurEstimee) })} ({t("ceiling70", { max: formatFcfa(s.valeurEstimee * 0.7) })})
                           </span>
                         </div>
                         <span className={`badge border-0 text-xs font-bold ${s.statut === "DISPONIBLE" ? "bg-primary/10 text-primary" : "bg-warning/20 text-yellow-800"}`}>
@@ -243,14 +246,13 @@ export function CashRequestFlow() {
             {step === 2 && (
               <>
                 <div>
-                  <h2 className="text-h2">Combien souhaitez-vous débloquer ?</h2>
+                  <h2 className="text-h2">{t("step2Heading")}</h2>
                   <p className="mt-1 text-sm text-muted">
-                    Plafond légal avec décote (70% max de la valeur estimée de votre stock de {selectedStock?.culture}) :{" "}
-                    <strong className="text-primary font-bold">{formatFcfa(maxAutorise)}</strong>
+                    {t("step2Sub", { culture: selectedStock?.culture ?? "", max: formatFcfa(maxAutorise) })}
                   </p>
                 </div>
                 <div className="form-control gap-2">
-                  <label className="label-text font-semibold">Montant en FCFA</label>
+                  <label className="label-text font-semibold">{t("amountLabel")}</label>
                   <input
                     type="number"
                     min={5000}
@@ -261,8 +263,8 @@ export function CashRequestFlow() {
                     className="input input-bordered input-lg w-full text-xl font-bold"
                   />
                   <div className="flex justify-between text-xs text-muted">
-                    <span>Min : {formatFcfa(5000)}</span>
-                    <span className="text-primary font-bold">Max : {formatFcfa(maxAutorise)}</span>
+                    <span>{t("minLabel", { val: formatFcfa(5000) })}</span>
+                    <span className="text-primary font-bold">{t("maxLabel", { val: formatFcfa(maxAutorise) })}</span>
                   </div>
                 </div>
               </>
@@ -272,23 +274,23 @@ export function CashRequestFlow() {
             {step === 3 && (
               <>
                 <div>
-                  <h2 className="text-h2">Récapitulatif de votre demande</h2>
+                  <h2 className="text-h2">{t("step3Heading")}</h2>
                   <p className="mt-1 text-sm text-muted">
-                    Vérifiez les détails avant la transmission au service financier.
+                    {t("step3Sub")}
                   </p>
                 </div>
                 <dl className="rounded-2xl bg-base-200 p-4 space-y-3 text-sm">
                   <div className="flex justify-between gap-3">
-                    <dt className="text-muted">Stock nanti (Garantie)</dt>
+                    <dt className="text-muted">{t("summaryCollateral")}</dt>
                     <dd className="font-bold text-base-content">{selectedStock?.culture} ({selectedStock?.quantiteKg} kg)</dd>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <dt className="text-muted">Valeur estimée du stock</dt>
+                    <dt className="text-muted">{t("summaryVal")}</dt>
                     <dd className="font-semibold text-base-content">{formatFcfa(selectedStock?.valeurEstimee ?? 0)}</dd>
                   </div>
                   <div className="h-px bg-base-300" />
                   <div className="flex justify-between gap-3">
-                    <dt className="text-muted">Avance sollicitée</dt>
+                    <dt className="text-muted">{t("summaryAdvance")}</dt>
                     <dd className="font-extrabold text-primary text-lg">{formatFcfa(montantDemande)}</dd>
                   </div>
                 </dl>
@@ -301,13 +303,13 @@ export function CashRequestFlow() {
           {step > 1 ? (
             <button onClick={() => setStep(step - 1)} className="btn btn-outline btn-lg">
               <ChevronLeft size={19} />
-              Retour
+              {tc("back")}
             </button>
           ) : <span />}
 
           {step < 3 ? (
             <button onClick={() => setStep(step + 1)} className="btn btn-primary btn-lg col-start-2">
-              Continuer
+              {tc("next")}
               <ChevronRight size={19} />
             </button>
           ) : (
@@ -316,7 +318,7 @@ export function CashRequestFlow() {
               disabled={soumission || montantDemande > maxAutorise}
               className="btn btn-primary btn-lg col-start-2"
             >
-              {soumission ? <span className="loading loading-spinner" /> : "Soumettre la demande"}
+              {soumission ? <span className="loading loading-spinner" /> : t("submitRequest")}
             </button>
           )}
         </div>

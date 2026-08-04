@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "./globals.css";
-import { AppNav } from "@/_components/app-nav";
-import { LayoutShift } from "@/_components/layout-shift";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -28,15 +26,18 @@ export const metadata: Metadata = {
     "Agro-Capital aide les agriculteurs togolais à obtenir du cash via leur stock de récolte et à vendre au meilleur moment grâce au Market Radar.",
 };
 
+/**
+ * Root layout minimal — pas de NextIntlClientProvider ici.
+ * Le Provider est dans app/[locale]/layout.tsx pour bénéficier
+ * des messages de la locale courante.
+ */
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="fr" data-theme="agrocapital" className={`${inter.variable} ${poppins.variable}`}>
+    <html data-theme="agrocapital" className={`${inter.variable} ${poppins.variable}`}>
       <body className="min-h-screen bg-base-100 text-base-content antialiased">
-        <AppNav />
-        {/* LayoutShift ajoute md:pl-56 uniquement si l'utilisateur est connecté */}
-        <LayoutShift>{children}</LayoutShift>
+        {children}
       </body>
     </html>
   );

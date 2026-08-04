@@ -21,60 +21,19 @@ import {
   Tag,
   Wallet,
   Sparkles,
+  Globe,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
 import { useCurrentUser } from "@/_hooks/useCurrentUser";
+import { useTranslations, useLocale } from "next-intl";
 
-/** Routes principale bottom nav mobile */
-const mainMobileLinksAgri = [
-  { href: "/", label: "Accueil", icon: Home },
-  { href: "/agro-pilot", label: "Agro-Pilot", icon: Sparkles },
-  { href: "/boutique", label: "Boutique", icon: Store },
-  { href: "/commandes", label: "Commandes", icon: ShoppingBag },
-] as const;
-
-const mainMobileLinksClient = [
-  { href: "/", label: "Accueil", icon: Home },
-  { href: "/agro-pilot", label: "Agro-Pilot", icon: Sparkles },
-  { href: "/catalogue", label: "Catalogue", icon: ShoppingBag },
-  { href: "/commandes", label: "Achats", icon: Store },
-] as const;
-
-/** Toutes les routes sidebar/burger — Agriculteur */
-const agriMenuLinks = [
-  { href: "/", label: "Accueil", icon: Home },
-  { href: "/agro-pilot", label: "Agro-Pilot (Assistant IA)", icon: Sparkles },
-  { href: "/boutique", label: "Ma Boutique Vitrine", icon: Store },
-  { href: "/boutique/produits", label: "Mes Produits en Vente", icon: ShoppingBag },
-  { href: "/stocks/nouveau", label: "Déclarer du Stock Phys.", icon: PlusCircle },
-  { href: "/nantissement", label: "Micro-Nantissement (Cash)", icon: WalletCards },
-  { href: "/commandes", label: "Commandes Reçues", icon: ShoppingBag },
-  { href: "/annonces", label: "Préventes & Récoltes", icon: Tag },
-  { href: "/portefeuilles", label: "Mes Portefeuilles", icon: Wallet },
-  { href: "/marche", label: "Market Radar (Prix)", icon: BarChart3 },
-  { href: "/simulateur", label: "Simulateur Vente", icon: Calculator },
-  { href: "/notifications", label: "Notifications", icon: Bell },
-  { href: "/profil", label: "Mon Profil", icon: UserRound },
-] as const;
-
-/** Toutes les routes sidebar/burger — Client */
-const clientMenuLinks = [
-  { href: "/", label: "Accueil", icon: Home },
-  { href: "/agro-pilot", label: "Agro-Pilot (Conseiller IA)", icon: Sparkles },
-  { href: "/catalogue", label: "Catalogue Produits", icon: ShoppingBag },
-  { href: "/boutique", label: "Annuaire des Boutiques", icon: Store },
-  { href: "/commandes", label: "Mes Achats & Livraisons", icon: Store },
-  { href: "/annonces", label: "Récoltes à venir", icon: Tag },
-  { href: "/marche", label: "Prix du Marché", icon: BarChart3 },
-  { href: "/notifications", label: "Notifications & Suivis", icon: Bell },
-  { href: "/profil", label: "Mon Profil", icon: UserRound },
-] as const;
 
 /** Wordmark partagé */
 export function AgroCapitalWordmark({ collapsed = false }: { collapsed?: boolean }) {
+  const t = useTranslations("Nav");
   return (
-    <Link href="/" className="flex items-center gap-2.5 select-none group" aria-label="Agro-Capital — accueil">
+    <Link href="/" className="flex items-center gap-2.5 select-none group" aria-label={t("logoAriaLabel")}>
       <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
         <svg width="22" height="22" viewBox="0 0 32 32" fill="none" aria-hidden="true">
           <path d="M16 6 C10 6 7 12 8 19 C10 17 13 15 16 15 C19 15 22 17 24 19 C25 12 22 6 16 6Z" fill="#dcfce7" />
@@ -103,9 +62,15 @@ export function AppNav() {
   const { user, isLoading } = useCurrentUser();
   const [menuOpen, setMenuOpen] = useState(false);
   const [isDark, setIsDark] = useState(false);
+  const t = useTranslations("Nav");
 
   // Pages publiques : nav complète masquée, seul un header minimal est affiché
-  const isAuthPage = pathname === "/connexion" || pathname === "/inscription";
+  // Supporte /fr/connexion, /connexion, etc.
+  const isAuthPage =
+    pathname.endsWith("/connexion") ||
+    pathname.endsWith("/inscription") ||
+    pathname === "/connexion" ||
+    pathname === "/inscription";
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme");
@@ -140,21 +105,101 @@ export function AppNav() {
   };
 
   const isActive = (href: string) =>
-    href === "/" ? pathname === "/" : pathname.startsWith(href);
+    href === "/" ? pathname === "/" || pathname.endsWith("/") && pathname.split("/").length <= 2 : pathname.includes(href);
+
+  // Liens définis avec les labels traduits (Agriculteur)
+  const agriMenuLinks = [
+    { href: "/", label: t("home"), icon: Home },
+    { href: "/agro-pilot", label: t("agroPilotFull"), icon: Sparkles },
+    { href: "/boutique", label: t("boutiqueVitrine"), icon: Store },
+    { href: "/boutique/produits", label: t("produits"), icon: ShoppingBag },
+    { href: "/stocks/nouveau", label: t("stocksNew"), icon: PlusCircle },
+    { href: "/nantissement", label: t("nantissement"), icon: WalletCards },
+    { href: "/commandes", label: t("commandes"), icon: ShoppingBag },
+    { href: "/annonces", label: t("annonces"), icon: Tag },
+    { href: "/portefeuilles", label: t("portefeuilles"), icon: Wallet },
+    { href: "/marche", label: t("marche"), icon: BarChart3 },
+    { href: "/simulateur", label: t("simulateur"), icon: Calculator },
+    { href: "/notifications", label: t("notifications"), icon: Bell },
+    { href: "/profil", label: t("profil"), icon: UserRound },
+  ];
+
+  const clientMenuLinks = [
+    { href: "/", label: t("home"), icon: Home },
+    { href: "/agro-pilot", label: t("agroPilotClient"), icon: Sparkles },
+    { href: "/catalogue", label: t("catalogue"), icon: ShoppingBag },
+    { href: "/boutique", label: t("boutiqueAnnuaire"), icon: Store },
+    { href: "/commandes", label: t("commandesClient"), icon: Store },
+    { href: "/annonces", label: t("annonces"), icon: Tag },
+    { href: "/marche", label: t("marcheClient"), icon: BarChart3 },
+    { href: "/notifications", label: t("notificationsClient"), icon: Bell },
+    { href: "/profil", label: t("profil"), icon: UserRound },
+  ];
+
+  const mainMobileLinksAgri = [
+    { href: "/", label: t("home"), icon: Home },
+    { href: "/agro-pilot", label: t("agroPilot"), icon: Sparkles },
+    { href: "/boutique", label: t("boutique"), icon: Store },
+    { href: "/commandes", label: t("commandesMobile"), icon: ShoppingBag },
+  ];
+
+  const mainMobileLinksClient = [
+    { href: "/", label: t("home"), icon: Home },
+    { href: "/agro-pilot", label: t("agroPilot"), icon: Sparkles },
+    { href: "/catalogue", label: t("catalogueMobile"), icon: ShoppingBag },
+    { href: "/commandes", label: t("achatsMobile"), icon: Store },
+  ];
+
+  const locale = useLocale();
+
+  const switchLocale = (newLocale: string) => {
+    const newPathname = pathname.replace(/^\/(fr|en)(\/|$)/, `/${newLocale}$2`);
+    router.push(newPathname || `/${newLocale}`);
+  };
+
+  const LanguageSwitcher = () => (
+    <div className="flex items-center rounded-xl bg-slate-100 dark:bg-slate-800 p-0.5 text-xs font-extrabold border border-slate-200/60 dark:border-slate-700">
+      <button
+        type="button"
+        onClick={() => switchLocale("fr")}
+        className={`px-2 py-1 rounded-lg transition-all ${
+          locale === "fr"
+            ? "bg-emerald-600 text-white shadow-xs"
+            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+        }`}
+      >
+        FR
+      </button>
+      <button
+        type="button"
+        onClick={() => switchLocale("en")}
+        className={`px-2 py-1 rounded-lg transition-all ${
+          locale === "en"
+            ? "bg-emerald-600 text-white shadow-xs"
+            : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+        }`}
+      >
+        EN
+      </button>
+    </div>
+  );
 
   // ─── Pages d'authentification : header minimal sans sidebar ───────────────
   if (isAuthPage) {
     return (
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 shadow-xs">
         <AgroCapitalWordmark />
-        <button
-          type="button"
-          onClick={toggleDarkMode}
-          aria-label="Basculer le mode sombre"
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-primary/10 transition-colors"
-        >
-          {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <LanguageSwitcher />
+          <button
+            type="button"
+            onClick={toggleDarkMode}
+            aria-label={t("toggleDark")}
+            className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-primary/10 transition-colors"
+          >
+            {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
+          </button>
+        </div>
       </header>
     );
   }
@@ -189,10 +234,11 @@ export function AppNav() {
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 shadow-xs">
         <AgroCapitalWordmark />
         <div className="flex items-center gap-2">
+          <LanguageSwitcher />
           <button
             type="button"
             onClick={toggleDarkMode}
-            aria-label="Basculer le mode sombre"
+            aria-label={t("toggleDark")}
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-primary/10 transition-colors"
           >
             {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
@@ -202,7 +248,7 @@ export function AppNav() {
             className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-white hover:bg-primary/90 transition-colors"
           >
             <LogIn size={16} />
-            Se connecter
+            {t("login")}
           </Link>
         </div>
       </header>
@@ -220,10 +266,11 @@ export function AppNav() {
       <header className="md:hidden sticky top-0 z-40 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-900 dark:text-white px-4 py-3 shadow-xs">
         <AgroCapitalWordmark />
         <div className="flex items-center gap-2">
+          <LanguageSwitcher />
           <button
             type="button"
             onClick={toggleDarkMode}
-            aria-label="Basculer le mode sombre"
+            aria-label={t("toggleDark")}
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-primary/10 transition-colors"
           >
             {isDark ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} />}
@@ -231,7 +278,7 @@ export function AppNav() {
           <button
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
-            aria-label="Ouvrir le menu de navigation"
+            aria-label={t("openMenu")}
             aria-expanded={menuOpen}
             className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary font-bold transition-colors"
           >
@@ -260,7 +307,7 @@ export function AppNav() {
                 className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-slate-800 px-3 py-1.5 rounded-xl"
               >
                 {isDark ? <Sun size={15} className="text-yellow-400" /> : <Moon size={15} />}
-                {isDark ? "Mode Clair" : "Mode Sombre"}
+                {isDark ? t("lightMode") : t("darkMode")}
               </button>
             </div>
 
@@ -292,7 +339,7 @@ export function AppNav() {
               className="flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all mt-2"
             >
               <LogOut size={18} />
-              Se déconnecter
+              {t("logout")}
             </button>
           </motion.div>
         )}
@@ -300,7 +347,7 @@ export function AppNav() {
 
       {/* DESKTOP SIDEBAR */}
       <aside
-        aria-label="Navigation principale"
+        aria-label={t("mainNav")}
         className="hidden md:flex fixed inset-y-0 left-0 z-40 w-56 flex-col bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 shadow-xs"
       >
         <div className="px-5 py-6">
@@ -347,20 +394,23 @@ export function AppNav() {
             </div>
             <div className="min-w-0">
               <p className="truncate text-xs font-bold text-slate-900 dark:text-white">{user.nom}</p>
-              <p className="truncate text-[10px] text-slate-500">{user.role === "AGRICULTEUR" ? "🌾 Agriculteur" : "🛒 Client"}</p>
+              <p className="truncate text-[10px] text-slate-500">
+                {user.role === "AGRICULTEUR" ? t("roleAgriculteur") : t("roleClient")}
+              </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={toggleDarkMode}
-            className="flex w-full items-center justify-between rounded-xl bg-slate-100 dark:bg-slate-800 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-primary/10 transition-colors"
-          >
-            <span className="flex items-center gap-2">
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={toggleDarkMode}
+              className="flex items-center gap-2 rounded-xl bg-slate-100 dark:bg-slate-800 px-3 py-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:bg-primary/10 transition-colors"
+            >
               {isDark ? <Sun size={15} className="text-yellow-400" /> : <Moon size={15} />}
-              {isDark ? "Clair" : "Sombre"}
-            </span>
-          </button>
+              {isDark ? t("light") : t("dark")}
+            </button>
+            <LanguageSwitcher />
+          </div>
 
           <button
             type="button"
@@ -368,16 +418,16 @@ export function AppNav() {
             className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
           >
             <LogOut size={14} />
-            Se déconnecter
+            {t("logout")}
           </button>
 
-          <p className="text-[11px] text-center text-slate-400 font-medium">Djanta 2026 · Lomé</p>
+          <p className="text-[11px] text-center text-slate-400 font-medium">{t("footer")}</p>
         </div>
       </aside>
 
       {/* MOBILE BOTTOM NAV */}
       <nav
-        aria-label="Navigation mobile"
+        aria-label={t("mobileNav")}
         className={[
           "md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-slate-900 text-slate-800 dark:text-white",
           "border-t border-slate-200 dark:border-slate-800 shadow-lg",

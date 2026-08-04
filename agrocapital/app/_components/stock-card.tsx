@@ -3,6 +3,7 @@
 import { PackageCheck, ShieldCheck } from "lucide-react";
 import { motion } from "motion/react";
 import { formatFcfa, STATUT_STOCK_LABEL } from "@/_lib/utils";
+import { useTranslations } from "next-intl";
 
 export type StockItem = {
   id: string;
@@ -14,6 +15,7 @@ export type StockItem = {
 };
 
 export function StockCard({ stock, index = 0 }: { stock: StockItem; index?: number }) {
+  const t = useTranslations("Components.stockCard");
   const isGarantie = stock.statut === "NANTI";
 
   return (
@@ -58,7 +60,7 @@ export function StockCard({ stock, index = 0 }: { stock: StockItem; index?: numb
           {isGarantie && (
             <span className="flex items-center gap-1.5 text-warning font-semibold">
               <ShieldCheck size={14} aria-hidden="true" />
-              Garantie nantissement active
+              {t("pledgeActive")}
             </span>
           )}
         </div>
