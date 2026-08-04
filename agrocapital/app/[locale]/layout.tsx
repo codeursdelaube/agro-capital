@@ -4,7 +4,27 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { AppNav } from "@/_components/app-nav";
 import { LayoutShift } from "@/_components/layout-shift";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+import { Inter, Poppins } from "next/font/google";
+import "../globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["600", "700", "800"],
+  variable: "--font-poppins",
+  display: "swap",
+});
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
 
 type Props = {
   children: React.ReactNode;
@@ -36,8 +56,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   const messages = await getMessages();
 
   return (
-    <html lang={locale} data-theme="agrocapital">
-      <body>
+    <html lang={locale} data-theme="agrocapital" className={`${inter.variable} ${poppins.variable}`}>
+      <body className="min-h-screen bg-base-100 text-base-content antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AppNav />
           {/* LayoutShift ajoute md:pl-56 uniquement si l'utilisateur est connecté */}

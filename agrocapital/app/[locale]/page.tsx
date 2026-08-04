@@ -101,130 +101,151 @@ const stats = [
 ];
 
 // ─── Composants Hero Public (non connecté) ────────────────────────────────────
+// ─── Composants Hero Public (non connecté) ────────────────────────────────────
 function HeroPublic() {
   const t = useTranslations("Home");
 
   const stats = [
-    { value: "2 400+", label: t("statsAgriculteurs") },
-    { value: "850M", label: t("statsTransactions") },
-    { value: "98%", label: t("statsSatisfaction") },
+    { value: "2 400+", label: t("statsAgriculteurs"), icon: "🧑‍🌾" },
+    { value: "850M", label: t("statsTransactions"), icon: "💰" },
+    { value: "98%", label: t("statsSatisfaction"), icon: "⭐" },
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-emerald-50 via-white to-yellow-50">
-      {/* Blob décoratif */}
+    <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-emerald-900/5 via-emerald-50/60 to-yellow-50/50 border border-emerald-100/80 shadow-xs">
+      {/* Decorative Blob lights */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full bg-emerald-100/60 blur-3xl"
+        className="pointer-events-none absolute -top-40 -right-40 h-[32rem] w-[32rem] rounded-full bg-emerald-400/20 blur-[100px]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute -bottom-24 -left-20 h-72 w-72 rounded-full bg-yellow-100/60 blur-3xl"
+        className="pointer-events-none absolute -bottom-40 -left-20 h-[28rem] w-[28rem] rounded-full bg-yellow-400/20 blur-[100px]"
       />
 
-      <div className="relative px-4 py-10 sm:px-6 lg:px-10 lg:py-16">
-        {/* Badge */}
-        <motion.div
-          variants={fadeIn}
-          initial="hidden"
-          animate="visible"
-          custom={0}
-          className="mb-5 inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-white px-3 py-1.5 shadow-sm"
-        >
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500">
-            <Star size={10} className="text-white" fill="white" />
-          </span>
-          <span className="text-xs font-bold text-emerald-700">
-            {t("badge")}
-          </span>
-        </motion.div>
-
-        {/* Titre + illustration — 2 colonnes sur desktop */}
-        <div className="flex items-center gap-8 lg:gap-16">
+      <div className="relative px-6 py-12 sm:px-10 lg:px-14 lg:py-20">
+        <div className="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+          
+          {/* Left Column: Headline & Action CTA */}
           <motion.div
             variants={fadeUp}
             initial="hidden"
             animate="visible"
-            custom={1}
-            className="flex-1 min-w-0"
+            custom={0}
+            className="lg:col-span-7 space-y-6"
           >
-            <h1 className="text-3xl font-extrabold leading-tight tracking-tight text-slate-900 sm:text-4xl lg:text-5xl xl:text-6xl">
+            {/* Live Badge */}
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-emerald-500/20 bg-white/80 backdrop-blur-md px-4 py-2 shadow-sm">
+              <span className="relative flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="text-xs font-bold tracking-wide text-emerald-800 uppercase">
+                {t("badge")}
+              </span>
+            </div>
+
+            {/* Main Headline */}
+            <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
               {t("heroTitle")}{" "}
-              <span className="relative inline-block">
-                <span className="relative z-10 text-emerald-600">{t("heroTitleHighlight")}</span>
+              <span className="relative inline-block text-emerald-600">
+                {t("heroTitleHighlight")}
                 <span
                   aria-hidden
-                  className="absolute bottom-0 left-0 h-2.5 w-full -skew-x-2 bg-yellow-200/70"
+                  className="absolute bottom-1 left-0 -z-10 h-3 w-full rounded-sm bg-yellow-300/60 -skew-x-3"
                 />
               </span>
             </h1>
-            <p className="mt-4 text-base text-slate-600 leading-relaxed lg:text-lg lg:max-w-xl">
+
+            <p className="text-base text-slate-600 leading-relaxed sm:text-lg lg:max-w-xl font-medium">
               {t("heroSubtitle")}
             </p>
 
-            <div className="mt-6 flex flex-wrap gap-3">
+            {/* CTAs */}
+            <div className="pt-2 flex flex-wrap items-center gap-4">
               <Link
                 href="/inscription"
                 id="cta-inscription-hero"
-                className="inline-flex items-center gap-2 rounded-2xl bg-emerald-600 px-6 py-3.5 text-sm font-extrabold text-white shadow-lg shadow-emerald-200 hover:bg-emerald-700 active:scale-95 transition-all duration-150 lg:px-8 lg:py-4 lg:text-base"
+                className="group relative inline-flex items-center gap-2.5 rounded-2xl bg-emerald-600 px-7 py-4 text-base font-extrabold text-white shadow-xl shadow-emerald-600/25 hover:bg-emerald-700 hover:shadow-2xl hover:shadow-emerald-600/35 active:scale-95 transition-all duration-200"
               >
                 {t("ctaStart")}
-                <ArrowRight size={17} />
+                <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
               </Link>
               <Link
                 href="/connexion"
                 id="cta-connexion-hero"
-                className="inline-flex items-center gap-2 rounded-2xl border-2 border-slate-200 bg-white px-6 py-3.5 text-sm font-extrabold text-slate-700 hover:border-emerald-300 hover:text-emerald-700 transition-all duration-150 lg:px-8 lg:py-4 lg:text-base"
+                className="inline-flex items-center gap-2 rounded-2xl border-2 border-slate-200/90 bg-white/90 backdrop-blur-md px-7 py-4 text-base font-extrabold text-slate-700 hover:border-emerald-400 hover:text-emerald-700 hover:shadow-lg active:scale-95 transition-all duration-200"
               >
                 {t("ctaLogin")}
               </Link>
             </div>
 
-            {/* Mini-stats */}
-            <div className="mt-7 flex gap-8">
+            {/* Mini Stats Cards */}
+            <div className="pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-4">
               {stats.map((s) => (
-                <div key={s.label}>
-                  <p className="text-lg font-extrabold text-slate-900 lg:text-2xl">{s.value}</p>
-                  <p className="text-[11px] text-slate-500 lg:text-xs">{s.label}</p>
+                <div key={s.label} className="p-3 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 shadow-xs">
+                  <div className="text-sm">{s.icon}</div>
+                  <p className="text-xl font-black text-slate-900 tracking-tight sm:text-2xl mt-0.5">{s.value}</p>
+                  <p className="text-[11px] font-semibold text-slate-500 line-clamp-1">{s.label}</p>
                 </div>
               ))}
             </div>
           </motion.div>
 
-          {/* Illustration 1 — cachée sur mobile, grande sur desktop */}
+          {/* Right Column: Hero Graphic with Floating Glass Cards */}
           <motion.div
-            initial={{ opacity: 0, x: 20, scale: 0.95 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.25, ease: [0.22, 1, 0.36, 1] as const }}
-            className="hidden sm:block shrink-0 w-48 md:w-64 lg:w-80 xl:w-96"
+            initial={{ opacity: 0, scale: 0.92, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            className="lg:col-span-5 relative flex justify-center"
           >
-            <Image
-              src="/illustartion1.png"
-              alt={t("heroIllustrationAlt")}
-              width={600}
-              height={600}
-              priority
-              className="w-full drop-shadow-2xl"
-            />
-          </motion.div>
-        </div>
+            <div className="relative w-full max-w-md">
+              
+              {/* Floating Badge Top Left */}
+              <motion.div
+                animate={{ y: [0, -6, 0] }}
+                transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
+                className="absolute -top-4 -left-4 z-20 hidden sm:flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-white/90 backdrop-blur-md px-4 py-3 shadow-xl"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-extrabold text-sm">
+                  📈
+                </span>
+                <div>
+                  <p className="text-xs font-black text-slate-900">{t("heroFloatBadge1")}</p>
+                  <p className="text-[10px] font-semibold text-slate-500">Agro-Capital Analytics</p>
+                </div>
+              </motion.div>
 
-        {/* Illustration 1 mobile (sous le texte) */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="sm:hidden mt-6 flex justify-center"
-        >
-          <Image
-            src="/illustartion1.png"
-            alt={t("heroIllustrationAlt")}
-            width={300}
-            height={300}
-            priority
-            className="w-52 drop-shadow-xl"
-          />
-        </motion.div>
+              {/* Floating Badge Bottom Right */}
+              <motion.div
+                animate={{ y: [0, 6, 0] }}
+                transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
+                className="absolute -bottom-4 -right-2 z-20 hidden sm:flex items-center gap-3 rounded-2xl border border-amber-500/20 bg-white/90 backdrop-blur-md px-4 py-3 shadow-xl"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700 font-extrabold text-sm">
+                  ⚡
+                </span>
+                <div>
+                  <p className="text-xs font-black text-slate-900">{t("heroFloatBadge2")}</p>
+                  <p className="text-[10px] font-semibold text-slate-500">T-Money & Flooz</p>
+                </div>
+              </motion.div>
+
+              {/* Main Image Container */}
+              <div className="relative rounded-3xl bg-gradient-to-b from-white to-emerald-50/50 p-4 border border-white/80 shadow-2xl overflow-hidden">
+                <Image
+                  src="/illustartion1.png"
+                  alt={t("heroIllustrationAlt")}
+                  width={600}
+                  height={600}
+                  priority
+                  className="w-full h-auto object-contain transform hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+            </div>
+          </motion.div>
+
+        </div>
       </div>
     </section>
   );
@@ -463,18 +484,104 @@ const featuresClient = [
   },
 ];
 
+// ─── TrustBar (Bandeau de couverture) ──────────────────────────────────────────
+function TrustBar() {
+  const t = useTranslations("Home");
+  return (
+    <div className="rounded-2xl border border-slate-200/80 bg-white/70 backdrop-blur-md p-4 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+      <div className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-wider text-emerald-800">
+        <Shield size={16} className="text-emerald-600" />
+        <span>{t("regionsTitle")}</span>
+      </div>
+      <div className="text-xs font-bold text-slate-700 bg-emerald-50/80 px-4 py-1.5 rounded-full border border-emerald-100/80">
+        🇹🇬 {t("regionsList")}
+      </div>
+    </div>
+  );
+}
+
+// ─── AgroPilotSpotlight (Focus IA) ────────────────────────────────────────────
+function AgroPilotSpotlight() {
+  const t = useTranslations("Home");
+  return (
+    <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-white p-8 sm:p-12 shadow-2xl border border-emerald-500/20">
+      <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-yellow-500/10 blur-3xl" />
+
+      <div className="relative grid lg:grid-cols-12 gap-8 items-center">
+        <div className="lg:col-span-7 space-y-5">
+          <div className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 px-3.5 py-1.5 text-xs font-bold text-emerald-300 border border-emerald-500/30">
+            <Sparkles size={14} className="text-yellow-300" />
+            <span>Agro-Pilot Intelligence</span>
+          </div>
+
+          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+            {t("spotlightTitle")}
+          </h2>
+
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            {t("spotlightSubtitle")}
+          </p>
+
+          <div className="space-y-3 pt-2">
+            {[t("spotlightFeature1"), t("spotlightFeature2"), t("spotlightFeature3")].map((feat, idx) => (
+              <div key={idx} className="flex items-center gap-3 text-sm font-semibold text-emerald-100">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 text-xs font-bold">
+                  ✓
+                </span>
+                <span>{feat}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="pt-4">
+            <Link
+              href="/agro-pilot"
+              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-7 py-4 text-sm font-extrabold text-slate-950 shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 active:scale-95 transition-all"
+            >
+              {t("spotlightCta")} <ArrowRight size={17} />
+            </Link>
+          </div>
+        </div>
+
+        {/* AI Graphic Widget Card */}
+        <div className="lg:col-span-5 flex justify-center">
+          <div className="w-full max-w-sm rounded-3xl bg-white/10 backdrop-blur-md p-6 border border-white/15 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-3 w-3 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-xs font-bold text-emerald-300">Radar Maïs (Lomé)</span>
+              </div>
+              <span className="text-[10px] bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">HAUSSE</span>
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between items-baseline">
+                <span className="text-xs text-slate-300">Prix conseillé</span>
+                <span className="text-lg font-black text-white">450 FCFA / kg</span>
+              </div>
+              <p className="text-[11px] text-slate-300 leading-relaxed bg-white/5 p-3 rounded-xl border border-white/5">
+                💡 &quot;Agro-Pilot vous conseille de conserver votre stock encore 2 semaines pour maximiser vos gains (+18%).&quot;
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Section Features ─────────────────────────────────────────────────────────
 function FeaturesSection({ isConnected, userRole }: { isConnected: boolean; userRole?: string }) {
   const t = useTranslations("Home");
 
   const publicFeatures = [
     { icon: Sparkles, color: "bg-emerald-100 text-emerald-800", title: t("featuresPublic.agroPilot.title"), desc: t("featuresPublic.agroPilot.desc"), href: "/agro-pilot" },
-    { icon: BarChart3, color: "bg-emerald-100 text-emerald-700", title: t("featuresPublic.marketRadar.title"), desc: t("featuresPublic.marketRadar.desc"), href: "/marche" },
-    { icon: WalletCards, color: "bg-yellow-100 text-yellow-700", title: t("featuresPublic.cashImmediat.title"), desc: t("featuresPublic.cashImmediat.desc"), href: "/nantissement" },
-    { icon: Store, color: "bg-blue-100 text-blue-700", title: t("featuresPublic.boutique.title"), desc: t("featuresPublic.boutique.desc"), href: "/boutique" },
-    { icon: Tag, color: "bg-purple-100 text-purple-700", title: t("featuresPublic.preventes.title"), desc: t("featuresPublic.preventes.desc"), href: "/annonces" },
-    { icon: Calculator, color: "bg-orange-100 text-orange-700", title: t("featuresPublic.simulateur.title"), desc: t("featuresPublic.simulateur.desc"), href: "/simulateur" },
-    { icon: ShoppingBag, color: "bg-rose-100 text-rose-700", title: t("featuresPublic.commandes.title"), desc: t("featuresPublic.commandes.desc"), href: "/commandes" },
+    { icon: BarChart3, color: "bg-teal-100 text-teal-800", title: t("featuresPublic.marketRadar.title"), desc: t("featuresPublic.marketRadar.desc"), href: "/marche" },
+    { icon: WalletCards, color: "bg-yellow-100 text-yellow-800", title: t("featuresPublic.cashImmediat.title"), desc: t("featuresPublic.cashImmediat.desc"), href: "/nantissement" },
+    { icon: Store, color: "bg-blue-100 text-blue-800", title: t("featuresPublic.boutique.title"), desc: t("featuresPublic.boutique.desc"), href: "/boutique" },
+    { icon: Tag, color: "bg-purple-100 text-purple-800", title: t("featuresPublic.preventes.title"), desc: t("featuresPublic.preventes.desc"), href: "/annonces" },
+    { icon: Calculator, color: "bg-orange-100 text-orange-800", title: t("featuresPublic.simulateur.title"), desc: t("featuresPublic.simulateur.desc"), href: "/simulateur" },
+    { icon: ShoppingBag, color: "bg-rose-100 text-rose-800", title: t("featuresPublic.commandes.title"), desc: t("featuresPublic.commandes.desc"), href: "/commandes" },
   ];
 
   const agriFeatures = [
@@ -498,25 +605,25 @@ function FeaturesSection({ isConnected, userRole }: { isConnected: boolean; user
   const currentFeatures = !isConnected ? publicFeatures : userRole === "CLIENT" ? clientFeatures : agriFeatures;
 
   return (
-    <section>
+    <section className="space-y-6">
       <motion.div
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="mb-5"
+        className="space-y-1"
       >
-        <h2 className="text-xl font-extrabold text-slate-900">
+        <h2 className="text-2xl font-black tracking-tight text-slate-900">
           {isConnected ? t("featuresTitleConnected") : t("featuresTitle")}
         </h2>
         {!isConnected && (
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="text-sm font-medium text-slate-500">
             {t("featuresSubtitle")}
           </p>
         )}
       </motion.div>
 
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {currentFeatures.map(({ icon: Icon, color, title, desc, href }, i) => (
           <motion.div
             key={href}
@@ -528,23 +635,26 @@ function FeaturesSection({ isConnected, userRole }: { isConnected: boolean; user
           >
             <Link
               href={href}
-              className="group flex items-start gap-4 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm hover:shadow-md hover:border-emerald-200 transition-all duration-200 h-full"
+              className="group flex flex-col justify-between rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-6 shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 h-full"
             >
-              <span
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl ${color} transition-transform duration-200 group-hover:scale-110`}
-              >
-                <Icon size={21} />
-              </span>
-              <span className="min-w-0 flex-1">
-                <strong className="block text-sm font-extrabold text-slate-900 group-hover:text-emerald-700 transition-colors">
-                  {title}
-                </strong>
-                <small className="mt-1 block text-xs text-slate-500 leading-relaxed">{desc}</small>
-              </span>
-              <ArrowRight
-                size={16}
-                className="mt-0.5 shrink-0 text-slate-300 group-hover:text-emerald-500 group-hover:translate-x-0.5 transition-all duration-200"
-              />
+              <div className="space-y-4">
+                <span
+                  className={`inline-flex h-12 w-12 items-center justify-center rounded-2xl ${color} shadow-xs transition-transform duration-300 group-hover:scale-110`}
+                >
+                  <Icon size={22} />
+                </span>
+                <div>
+                  <strong className="block text-base font-extrabold text-slate-900 group-hover:text-emerald-700 transition-colors">
+                    {title}
+                  </strong>
+                  <p className="mt-1 text-xs text-slate-500 leading-relaxed font-medium">{desc}</p>
+                </div>
+              </div>
+              <div className="pt-4 flex items-center justify-end">
+                <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity">
+                  Explorer <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                </span>
+              </div>
             </Link>
           </motion.div>
         ))}
@@ -579,21 +689,21 @@ function HowItWorksSection() {
   ];
 
   return (
-    <section>
+    <section className="space-y-8">
       <motion.div
         variants={fadeUp}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
-        className="mb-6 text-center"
+        className="text-center space-y-2"
       >
-        <span className="inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-700 mb-2">
+        <span className="inline-block rounded-full bg-emerald-100/90 px-4 py-1.5 text-xs font-bold text-emerald-800 border border-emerald-200/80">
           {t("howItWorksBadge")}
         </span>
-        <h2 className="text-xl font-extrabold text-slate-900">{t("howItWorksTitle")}</h2>
+        <h2 className="text-2xl sm:text-3xl font-black text-slate-900">{t("howItWorksTitle")}</h2>
       </motion.div>
 
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-3">
         {steps.map(({ img, step, title, desc }, i) => (
           <motion.div
             key={step}
@@ -602,23 +712,25 @@ function HowItWorksSection() {
             whileInView="visible"
             viewport={{ once: true }}
             custom={i}
-            className="flex flex-col items-center gap-4 rounded-3xl border border-slate-100 bg-white p-6 shadow-sm text-center"
+            className="group relative flex flex-col items-center gap-4 rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-sm p-7 shadow-xs hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 text-center"
           >
             <div className="shrink-0 relative">
-              <Image
-                src={img}
-                alt={title}
-                width={200}
-                height={200}
-                className="h-28 w-28 object-contain drop-shadow-md"
-              />
-              <span className="absolute -top-2 -right-2 flex h-7 w-7 items-center justify-center rounded-full bg-emerald-600 text-[10px] font-extrabold text-white shadow-md">
+              <div className="h-32 w-32 rounded-2xl bg-gradient-to-b from-emerald-50 to-white flex items-center justify-center p-2 shadow-inner">
+                <Image
+                  src={img}
+                  alt={title}
+                  width={200}
+                  height={200}
+                  className="h-24 w-24 object-contain drop-shadow-md group-hover:scale-105 transition-transform"
+                />
+              </div>
+              <span className="absolute -top-3 -right-3 flex h-9 w-9 items-center justify-center rounded-full bg-emerald-600 text-xs font-black text-white shadow-lg border-2 border-white">
                 {step}
               </span>
             </div>
             <div>
-              <h3 className="font-extrabold text-sm text-slate-900">{title}</h3>
-              <p className="mt-1 text-xs text-slate-500 leading-relaxed">{desc}</p>
+              <h3 className="font-extrabold text-base text-slate-900">{title}</h3>
+              <p className="mt-2 text-xs text-slate-500 leading-relaxed font-medium">{desc}</p>
             </div>
           </motion.div>
         ))}
@@ -637,36 +749,36 @@ function CTASection() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-900 px-6 py-8 text-center text-white shadow-xl"
+      className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-950 px-8 py-12 text-center text-white shadow-2xl border border-emerald-500/20"
     >
-      <div aria-hidden className="pointer-events-none absolute -top-8 -right-8 h-40 w-40 rounded-full bg-white/5" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full bg-yellow-400/10" />
+      <div aria-hidden className="pointer-events-none absolute -top-12 -right-12 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
+      <div aria-hidden className="pointer-events-none absolute -bottom-12 -left-12 h-44 w-44 rounded-full bg-yellow-400/20 blur-2xl" />
 
-      <div className="relative">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold backdrop-blur-sm mb-3">
-          <Zap size={12} className="text-yellow-300" />
+      <div className="relative max-w-2xl mx-auto space-y-4">
+        <span className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-extrabold backdrop-blur-md border border-white/20">
+          <Zap size={14} className="text-yellow-300" />
           {t("ctaFinalBadge")}
         </span>
-        <h2 className="text-xl font-extrabold leading-tight">
+        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight">
           {t("ctaFinalTitle")}
         </h2>
-        <p className="mt-2 text-sm text-emerald-100">
+        <p className="text-sm sm:text-base text-emerald-100 font-medium leading-relaxed">
           {t("ctaFinalSubtitle")}
         </p>
-        <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <div className="pt-4 flex flex-col gap-3 sm:flex-row sm:justify-center">
           <Link
             href="/inscription"
             id="cta-inscription-final"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white px-6 py-3.5 text-sm font-extrabold text-emerald-700 shadow-lg hover:bg-emerald-50 active:scale-95 transition-all"
+            className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white px-8 py-4 text-base font-extrabold text-emerald-800 shadow-xl hover:bg-emerald-50 active:scale-95 transition-all"
           >
-            {t("ctaFinalCreate")} <ArrowRight size={16} />
+            {t("ctaFinalCreate")} <ArrowRight size={18} />
           </Link>
           <Link
             href="/marche"
             id="cta-marche-public"
-            className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-white/30 px-6 py-3.5 text-sm font-bold text-white hover:bg-white/10 transition-all"
+            className="inline-flex items-center justify-center gap-2.5 rounded-2xl border-2 border-white/30 bg-white/10 backdrop-blur-md px-8 py-4 text-base font-bold text-white hover:bg-white/20 transition-all"
           >
-            <TrendingUp size={16} />
+            <TrendingUp size={18} />
             {t("ctaFinalMarket")}
           </Link>
         </div>
@@ -752,7 +864,10 @@ export default function Home() {
 
         {/* ── HERO ── */}
         {!user ? (
-          <HeroPublic />
+          <>
+            <HeroPublic />
+            <TrustBar />
+          </>
         ) : isAgri ? (
           <div className="pt-5">
             <HeroAgriculteur
@@ -782,6 +897,9 @@ export default function Home() {
 
         {/* ── Features / Que faire ── */}
         <FeaturesSection isConnected={!!user} userRole={user?.role} />
+
+        {/* ── Spotlight IA (visiteurs) ── */}
+        {!user && <AgroPilotSpotlight />}
 
         {/* ── CTA final (visiteurs) ── */}
         {!user && <CTASection />}
