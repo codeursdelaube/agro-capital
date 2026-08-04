@@ -146,7 +146,7 @@ function HeroPublic() {
             </div>
 
             {/* Main Headline */}
-            <h1 className="text-4xl font-black leading-[1.1] tracking-tight text-slate-900 sm:text-5xl lg:text-6xl">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-black leading-[1.12] tracking-tight text-slate-900">
               {t("heroTitle")}{" "}
               <span className="relative inline-block text-emerald-600">
                 {t("heroTitleHighlight")}
@@ -157,16 +157,16 @@ function HeroPublic() {
               </span>
             </h1>
 
-            <p className="text-base text-slate-600 leading-relaxed sm:text-lg lg:max-w-xl font-medium">
+            <p className="text-sm sm:text-lg text-slate-600 leading-relaxed lg:max-w-xl font-medium">
               {t("heroSubtitle")}
             </p>
 
             {/* CTAs */}
-            <div className="pt-2 flex flex-wrap items-center gap-4">
+            <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
               <Link
                 href="/inscription"
                 id="cta-inscription-hero"
-                className="group relative inline-flex items-center gap-2.5 rounded-2xl bg-emerald-600 px-7 py-4 text-base font-extrabold text-white shadow-xl shadow-emerald-600/25 hover:bg-emerald-700 hover:shadow-2xl hover:shadow-emerald-600/35 active:scale-95 transition-all duration-200"
+                className="group relative inline-flex items-center justify-center gap-2.5 rounded-2xl bg-emerald-600 px-6 sm:px-7 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold text-white shadow-xl shadow-emerald-600/25 hover:bg-emerald-700 hover:shadow-2xl hover:shadow-emerald-600/35 active:scale-95 transition-all duration-200"
               >
                 {t("ctaStart")}
                 <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
@@ -174,19 +174,19 @@ function HeroPublic() {
               <Link
                 href="/connexion"
                 id="cta-connexion-hero"
-                className="inline-flex items-center gap-2 rounded-2xl border-2 border-slate-200/90 bg-white/90 backdrop-blur-md px-7 py-4 text-base font-extrabold text-slate-700 hover:border-emerald-400 hover:text-emerald-700 hover:shadow-lg active:scale-95 transition-all duration-200"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-slate-200/90 bg-white/90 backdrop-blur-md px-6 sm:px-7 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold text-slate-700 hover:border-emerald-400 hover:text-emerald-700 hover:shadow-lg active:scale-95 transition-all duration-200"
               >
                 {t("ctaLogin")}
               </Link>
             </div>
 
             {/* Mini Stats Cards */}
-            <div className="pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-4">
+            <div className="pt-6 border-t border-slate-200/60 grid grid-cols-3 gap-2 sm:gap-4">
               {stats.map((s) => (
-                <div key={s.label} className="p-3 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 shadow-xs">
-                  <div className="text-sm">{s.icon}</div>
-                  <p className="text-xl font-black text-slate-900 tracking-tight sm:text-2xl mt-0.5">{s.value}</p>
-                  <p className="text-[11px] font-semibold text-slate-500 line-clamp-1">{s.label}</p>
+                <div key={s.label} className="p-2.5 sm:p-3 rounded-2xl bg-white/60 backdrop-blur-xs border border-white/80 shadow-xs text-center sm:text-left">
+                  <div className="text-xs sm:text-sm">{s.icon}</div>
+                  <p className="text-base sm:text-2xl font-black text-slate-900 tracking-tight mt-0.5">{s.value}</p>
+                  <p className="text-[10px] sm:text-[11px] font-semibold text-slate-500 line-clamp-1">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -205,14 +205,14 @@ function HeroPublic() {
               <motion.div
                 animate={{ y: [0, -6, 0] }}
                 transition={{ repeat: Infinity, duration: 4, ease: "easeInOut" }}
-                className="absolute -top-4 -left-4 z-20 hidden sm:flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-white/90 backdrop-blur-md px-4 py-3 shadow-xl"
+                className="absolute -top-3 -left-2 sm:-top-4 sm:-left-4 z-20 flex items-center gap-2 sm:gap-3 rounded-2xl border border-emerald-500/20 bg-white/90 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-3 shadow-xl"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-extrabold text-sm">
+                <span className="flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-emerald-100 text-emerald-700 font-extrabold text-xs sm:text-sm">
                   📈
                 </span>
                 <div>
-                  <p className="text-xs font-black text-slate-900">{t("heroFloatBadge1")}</p>
-                  <p className="text-[10px] font-semibold text-slate-500">Agro-Capital Analytics</p>
+                  <p className="text-[10px] sm:text-xs font-black text-slate-900">{t("heroFloatBadge1")}</p>
+                  <p className="text-[9px] sm:text-[10px] font-semibold text-slate-500">Agro-Capital Analytics</p>
                 </div>
               </motion.div>
 
@@ -220,14 +220,14 @@ function HeroPublic() {
               <motion.div
                 animate={{ y: [0, 6, 0] }}
                 transition={{ repeat: Infinity, duration: 4.5, ease: "easeInOut" }}
-                className="absolute -bottom-4 -right-2 z-20 hidden sm:flex items-center gap-3 rounded-2xl border border-amber-500/20 bg-white/90 backdrop-blur-md px-4 py-3 shadow-xl"
+                className="absolute -bottom-3 -right-2 sm:-bottom-4 sm:-right-2 z-20 flex items-center gap-2 sm:gap-3 rounded-2xl border border-amber-500/20 bg-white/90 backdrop-blur-md px-3 sm:px-4 py-2 sm:py-3 shadow-xl"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700 font-extrabold text-sm">
+                <span className="flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-700 font-extrabold text-xs sm:text-sm">
                   ⚡
                 </span>
                 <div>
-                  <p className="text-xs font-black text-slate-900">{t("heroFloatBadge2")}</p>
-                  <p className="text-[10px] font-semibold text-slate-500">T-Money & Flooz</p>
+                  <p className="text-[10px] sm:text-xs font-black text-slate-900">{t("heroFloatBadge2")}</p>
+                  <p className="text-[9px] sm:text-[10px] font-semibold text-slate-500">T-Money & Flooz</p>
                 </div>
               </motion.div>
 
@@ -504,7 +504,7 @@ function TrustBar() {
 function AgroPilotSpotlight() {
   const t = useTranslations("Home");
   return (
-    <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-white p-8 sm:p-12 shadow-2xl border border-emerald-500/20">
+    <section className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-slate-950 via-slate-900 to-emerald-950 text-white p-6 sm:p-12 shadow-2xl border border-emerald-500/20">
       <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 h-80 w-80 rounded-full bg-emerald-500/20 blur-3xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-24 -left-24 h-80 w-80 rounded-full bg-yellow-500/10 blur-3xl" />
 
@@ -515,7 +515,7 @@ function AgroPilotSpotlight() {
             <span>Agro-Pilot Intelligence</span>
           </div>
 
-          <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
+          <h2 className="text-xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight leading-tight">
             {t("spotlightTitle")}
           </h2>
 
@@ -525,7 +525,7 @@ function AgroPilotSpotlight() {
 
           <div className="space-y-3 pt-2">
             {[t("spotlightFeature1"), t("spotlightFeature2"), t("spotlightFeature3")].map((feat, idx) => (
-              <div key={idx} className="flex items-center gap-3 text-sm font-semibold text-emerald-100">
+              <div key={idx} className="flex items-center gap-3 text-xs sm:text-sm font-semibold text-emerald-100">
                 <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500/30 border border-emerald-400/40 text-emerald-300 text-xs font-bold">
                   ✓
                 </span>
@@ -537,7 +537,7 @@ function AgroPilotSpotlight() {
           <div className="pt-4">
             <Link
               href="/agro-pilot"
-              className="inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-7 py-4 text-sm font-extrabold text-slate-950 shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 active:scale-95 transition-all"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-emerald-500 px-7 py-4 text-sm font-extrabold text-slate-950 shadow-lg shadow-emerald-500/30 hover:bg-emerald-400 active:scale-95 transition-all"
             >
               {t("spotlightCta")} <ArrowRight size={17} />
             </Link>
@@ -595,7 +595,6 @@ function FeaturesSection({ isConnected, userRole }: { isConnected: boolean; user
 
   const clientFeatures = [
     { icon: ShoppingBag, color: "bg-emerald-100 text-emerald-800", title: t("featuresClient.catalogue.title"), desc: t("featuresClient.catalogue.desc"), href: "/catalogue" },
-    { icon: Sparkles, color: "bg-teal-100 text-teal-800", title: t("featuresClient.agroPilot.title"), desc: t("featuresClient.agroPilot.desc"), href: "/agro-pilot" },
     { icon: Store, color: "bg-blue-100 text-blue-700", title: t("featuresClient.boutiques.title"), desc: t("featuresClient.boutiques.desc"), href: "/boutique" },
     { icon: BarChart3, color: "bg-purple-100 text-purple-700", title: t("featuresClient.marche.title"), desc: t("featuresClient.marche.desc"), href: "/marche" },
     { icon: Tag, color: "bg-yellow-100 text-yellow-700", title: t("featuresClient.annonces.title"), desc: t("featuresClient.annonces.desc"), href: "/annonces" },
@@ -749,7 +748,7 @@ function CTASection() {
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true }}
-      className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-950 px-8 py-12 text-center text-white shadow-2xl border border-emerald-500/20"
+      className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-br from-emerald-600 via-emerald-700 to-emerald-950 px-5 py-8 sm:px-8 sm:py-12 text-center text-white shadow-2xl border border-emerald-500/20"
     >
       <div aria-hidden className="pointer-events-none absolute -top-12 -right-12 h-56 w-56 rounded-full bg-white/10 blur-2xl" />
       <div aria-hidden className="pointer-events-none absolute -bottom-12 -left-12 h-44 w-44 rounded-full bg-yellow-400/20 blur-2xl" />
@@ -759,24 +758,24 @@ function CTASection() {
           <Zap size={14} className="text-yellow-300" />
           {t("ctaFinalBadge")}
         </span>
-        <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black leading-tight">
+        <h2 className="text-xl sm:text-3xl lg:text-4xl font-black leading-tight">
           {t("ctaFinalTitle")}
         </h2>
-        <p className="text-sm sm:text-base text-emerald-100 font-medium leading-relaxed">
+        <p className="text-xs sm:text-base text-emerald-100 font-medium leading-relaxed">
           {t("ctaFinalSubtitle")}
         </p>
-        <div className="pt-4 flex flex-col gap-3 sm:flex-row sm:justify-center">
+        <div className="pt-4 flex flex-col sm:flex-row sm:justify-center gap-3">
           <Link
             href="/inscription"
             id="cta-inscription-final"
-            className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white px-8 py-4 text-base font-extrabold text-emerald-800 shadow-xl hover:bg-emerald-50 active:scale-95 transition-all"
+            className="inline-flex items-center justify-center gap-2.5 rounded-2xl bg-white px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-extrabold text-emerald-800 shadow-xl hover:bg-emerald-50 active:scale-95 transition-all"
           >
             {t("ctaFinalCreate")} <ArrowRight size={18} />
           </Link>
           <Link
             href="/marche"
             id="cta-marche-public"
-            className="inline-flex items-center justify-center gap-2.5 rounded-2xl border-2 border-white/30 bg-white/10 backdrop-blur-md px-8 py-4 text-base font-bold text-white hover:bg-white/20 transition-all"
+            className="inline-flex items-center justify-center gap-2.5 rounded-2xl border-2 border-white/30 bg-white/10 backdrop-blur-md px-6 sm:px-8 py-3.5 sm:py-4 text-sm sm:text-base font-bold text-white hover:bg-white/20 transition-all"
           >
             <TrendingUp size={18} />
             {t("ctaFinalMarket")}
@@ -792,14 +791,14 @@ function QuickActionsConnected({ isAgri }: { isAgri: boolean }) {
   const t = useTranslations("Home");
 
   const agriActions = [
-    { href: "/stocks/nouveau", label: t("quickActionsAgri.declareStock"), color: "bg-emerald-600 text-white" },
-    { href: "/boutique/produits", label: t("quickActionsAgri.produits"), color: "bg-white border border-slate-200 text-slate-800" },
+    { href: "/sante-culture", label: "🌿 Santé Culture IA", color: "bg-emerald-600 text-white" },
+    { href: "/stocks/nouveau", label: t("quickActionsAgri.declareStock"), color: "bg-white border border-slate-200 text-slate-800" },
     { href: "/nantissement", label: t("quickActionsAgri.demandeCash"), color: "bg-yellow-400 text-yellow-900" },
     { href: "/agro-pilot", label: t("quickActionsAgri.agroPilot"), color: "bg-white border border-slate-200 text-slate-800" },
   ];
   const clientActions = [
     { href: "/catalogue", label: t("quickActionsClient.catalogue"), color: "bg-emerald-600 text-white" },
-    { href: "/agro-pilot", label: t("quickActionsClient.agroPilot"), color: "bg-white border border-slate-200 text-slate-800" },
+    { href: "/annonces", label: t("annonces"), color: "bg-white border border-slate-200 text-slate-800" },
     { href: "/commandes", label: t("quickActionsClient.achats"), color: "bg-yellow-400 text-yellow-900" },
     { href: "/marche", label: t("quickActionsClient.marche"), color: "bg-white border border-slate-200 text-slate-800" },
   ];

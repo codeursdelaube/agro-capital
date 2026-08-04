@@ -22,6 +22,7 @@ import {
   Wallet,
   Sparkles,
   Globe,
+  Leaf,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
@@ -110,6 +111,7 @@ export function AppNav() {
   // Liens définis avec les labels traduits (Agriculteur)
   const agriMenuLinks = [
     { href: "/", label: t("home"), icon: Home },
+    { href: "/sante-culture", label: t("santeCulture"), icon: Leaf },
     { href: "/agro-pilot", label: t("agroPilotFull"), icon: Sparkles },
     { href: "/boutique", label: t("boutiqueVitrine"), icon: Store },
     { href: "/boutique/produits", label: t("produits"), icon: ShoppingBag },
@@ -126,7 +128,6 @@ export function AppNav() {
 
   const clientMenuLinks = [
     { href: "/", label: t("home"), icon: Home },
-    { href: "/agro-pilot", label: t("agroPilotClient"), icon: Sparkles },
     { href: "/catalogue", label: t("catalogue"), icon: ShoppingBag },
     { href: "/boutique", label: t("boutiqueAnnuaire"), icon: Store },
     { href: "/commandes", label: t("commandesClient"), icon: Store },
@@ -138,16 +139,16 @@ export function AppNav() {
 
   const mainMobileLinksAgri = [
     { href: "/", label: t("home"), icon: Home },
-    { href: "/agro-pilot", label: t("agroPilot"), icon: Sparkles },
+    { href: "/sante-culture", label: "Santé", icon: Leaf },
     { href: "/boutique", label: t("boutique"), icon: Store },
     { href: "/commandes", label: t("commandesMobile"), icon: ShoppingBag },
   ];
 
   const mainMobileLinksClient = [
     { href: "/", label: t("home"), icon: Home },
-    { href: "/agro-pilot", label: t("agroPilot"), icon: Sparkles },
     { href: "/catalogue", label: t("catalogueMobile"), icon: ShoppingBag },
     { href: "/commandes", label: t("achatsMobile"), icon: Store },
+    { href: "/marche", label: t("marcheClient"), icon: BarChart3 },
   ];
 
   const locale = useLocale();

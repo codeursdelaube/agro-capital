@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { routing } from "@/i18n/routing";
 import { AppNav } from "@/_components/app-nav";
 import { LayoutShift } from "@/_components/layout-shift";
+import { SplashScreen } from "@/_components/splash-screen";
 import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "../globals.css";
@@ -59,9 +60,11 @@ export default async function LocaleLayout({ children, params }: Props) {
     <html lang={locale} data-theme="agrocapital" className={`${inter.variable} ${poppins.variable}`}>
       <body className="min-h-screen bg-base-100 text-base-content antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
-          <AppNav />
-          {/* LayoutShift ajoute md:pl-56 uniquement si l'utilisateur est connecté */}
-          <LayoutShift>{children}</LayoutShift>
+          <SplashScreen>
+            <AppNav />
+            {/* LayoutShift ajoute md:pl-56 uniquement si l'utilisateur est connecté */}
+            <LayoutShift>{children}</LayoutShift>
+          </SplashScreen>
         </NextIntlClientProvider>
       </body>
     </html>

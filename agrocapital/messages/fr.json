@@ -48,6 +48,7 @@
     "simulateur": "Simulateur Vente",
     "notifications": "Notifications",
     "notificationsClient": "Notifications & Suivis",
+    "santeCulture": "Santé culture (Diagnostic IA)",
     "profil": "Mon Profil",
     "catalogue": "Catalogue Produits",
     "catalogueMobile": "Catalogue",
@@ -548,5 +549,36 @@
       "addPhoto": "Ajouter une photo",
       "fileHint": "JPG, PNG ou WebP, 5 Mo max. Image optimisée avant l'envoi."
     }
+  },
+
+  "SanteCulture": {
+    "title": "Diagnostic Santé des Cultures",
+    "subtitle": "Prenez en photo une plante ou feuille affectée pour obtenir une analyse IA instantanée, le niveau de sévérité et le traitement adapté.",
+    "uploadTitle": "Analyser une plante / culture",
+    "uploadInstructions": "Glissez-déposez une photo de votre plante ou cliquez pour parcourir",
+    "uploadFormats": "Formats acceptés : PNG, JPG, WEBP (max 10 Mo)",
+    "sampleTitle": "Ou essayez avec un exemple d'échantillon :",
+    "sampleMaize": "Maïs (Rouille foliaire)",
+    "sampleCassava": "Manioc (Mosaïque)",
+    "sampleTomato": "Tomate (Mildiou)",
+    "analyzing": "Analyse de la plante en cours...",
+    "analyzingStep1": "Extraction des caractéristiques visuelles des feuilles...",
+    "analyzingStep2": "Comparaison avec la base de données de pathologies ITRA/Togo...",
+    "resultTitle": "Résultat du Diagnostic IA",
+    "diseaseDetected": "Maladie détectée :",
+    "confidenceScore": "Indice de confiance IA : {score}%",
+    "severityLevel": "Niveau de sévérité :",
+    "severityLow": "Faible (Début d'infection)",
+    "severityMedium": "Modéré (Infection active)",
+    "severityHigh": "Élevé (Infection critique)",
+    "symptomsTitle": "Symptômes identifiés :",
+    "treatmentsTitle": "Traitements recommandés :",
+    "preventionTitle": "Mesures de prévention agronomique :",
+    "newDiagnostic": "Faire un nouveau diagnostic"
+  },
+
+  "Splash": {
+    "tagline": "La plateforme numérique & assistant IA des agriculteurs togolais 🇹🇬",
+    "subtitle": "Connexion au marché · Avance cash · Diagnostic de cultures"
   }
 }

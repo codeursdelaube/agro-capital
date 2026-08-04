@@ -48,6 +48,7 @@
     "simulateur": "Sales Simulator",
     "notifications": "Notifications",
     "notificationsClient": "Notifications & Updates",
+    "santeCulture": "Crop Health (AI Diagnosis)",
     "profil": "My Profile",
     "catalogue": "Product Catalog",
     "catalogueMobile": "Catalog",
@@ -548,5 +549,36 @@
       "addPhoto": "Add photo",
       "fileHint": "JPG, PNG or WebP, 5 MB max. Image optimized before uploading."
     }
+  },
+
+  "SanteCulture": {
+    "title": "Crop Health Diagnosis",
+    "subtitle": "Take a photo of an affected plant or leaf for instant AI analysis, severity score, and targeted treatment recommendations.",
+    "uploadTitle": "Analyze a plant / crop",
+    "uploadInstructions": "Drag and drop a photo of your plant or click to browse",
+    "uploadFormats": "Accepted formats: PNG, JPG, WEBP (max 10MB)",
+    "sampleTitle": "Or try with a sample image:",
+    "sampleMaize": "Maize (Leaf Rust)",
+    "sampleCassava": "Cassava (Mosaic Virus)",
+    "sampleTomato": "Tomato (Late Blight)",
+    "analyzing": "Analyzing plant health...",
+    "analyzingStep1": "Extracting visual leaf characteristics...",
+    "analyzingStep2": "Comparing with ITRA/Togo plant pathology database...",
+    "resultTitle": "AI Diagnostic Result",
+    "diseaseDetected": "Disease detected:",
+    "confidenceScore": "AI Confidence score: {score}%",
+    "severityLevel": "Severity level:",
+    "severityLow": "Low (Early infection)",
+    "severityMedium": "Moderate (Active infection)",
+    "severityHigh": "High (Critical infection)",
+    "symptomsTitle": "Identified symptoms:",
+    "treatmentsTitle": "Recommended treatments:",
+    "preventionTitle": "Preventive agronomic measures:",
+    "newDiagnostic": "Run another diagnosis"
+  },
+
+  "Splash": {
+    "tagline": "Togo's agricultural digital marketplace & AI assistant 🇹🇬",
+    "subtitle": "Connecting markets · Cash advance · Crop diagnostics"
   }
 }
