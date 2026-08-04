@@ -586,6 +586,10 @@
     "installApp": "Installer l'App Mobile",
     "installAppSub": "Installez Agro-Capital sur votre téléphone pour un accès instantané même hors-ligne.",
     "appInstalled": "App Agro-Capital Installée",
-    "installInstructionsAlert": "Pour installer Agro-Capital : appuyez sur le menu de votre navigateur puis sélectionnez 'Ajouter à l'écran d'accueil' ou 'Installer l'application'."
+    "installInstructionsAlert": "Pour installer Agro-Capital : appuyez sur le menu de votre navigateur puis sélectionnez 'Ajouter à l'écran d'accueil' ou 'Installer l'application'.",
+    "updateTitle": "🎉 Mise à jour disponible !",
+    "updateBody": "Une nouvelle version d'Agro-Capital est prête avec de nouvelles fonctionnalités et améliorations.",
+    "updateNow": "Mettre à jour maintenant",
+    "updateLater": "Plus tard"
   }
 }

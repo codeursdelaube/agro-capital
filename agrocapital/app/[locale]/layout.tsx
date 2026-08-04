@@ -6,6 +6,7 @@ import { AppNav } from "@/_components/app-nav";
 import { LayoutShift } from "@/_components/layout-shift";
 import { SplashScreen } from "@/_components/splash-screen";
 import { SwRegister } from "@/_components/sw-register";
+import { PwaUpdateBanner } from "@/_components/pwa-update-banner";
 import type { Metadata, Viewport } from "next";
 import { Inter, Poppins } from "next/font/google";
 import "../globals.css";
@@ -75,6 +76,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       <body className="min-h-screen bg-base-100 text-base-content antialiased">
         <NextIntlClientProvider locale={locale} messages={messages}>
           <SwRegister />
+          <PwaUpdateBanner />
           <SplashScreen>
             <AppNav />
             {/* LayoutShift ajoute md:pl-56 uniquement si l'utilisateur est connecté */}

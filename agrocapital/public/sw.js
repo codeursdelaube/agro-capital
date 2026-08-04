@@ -24,7 +24,7 @@ self.addEventListener("install", (event) => {
   );
 });
 
-// Activation : suppression stricte des anciens caches v1
+// Activation : suppression stricte des anciens caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches
@@ -38,6 +38,13 @@ self.addEventListener("activate", (event) => {
       )
       .then(() => self.clients.claim())
   );
+});
+
+// Écoute des messages du client (déclenchement de la mise à jour 1-clic)
+self.addEventListener("message", (event) => {
+  if (event.data && event.data.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
 });
 
 // Interception des requêtes HTTP : Caching optimisé & Protection Hors-Ligne
