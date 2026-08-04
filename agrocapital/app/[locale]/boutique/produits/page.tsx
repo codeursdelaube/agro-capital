@@ -88,19 +88,25 @@ export default function MesProduitsPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             {produits.map((p) => (
               <div key={p.id} className="card bg-white border border-base-200 p-4 space-y-3 shadow-xs">
-                {p.photoUrl ? (
-  <Image
-    src={p.photoUrl}
-    alt={p.nom}
-    className="h-40 w-full rounded-xl object-cover"
-    width={200}
-    height={200}
-  />
-) : (
-  <div className="flex h-40 w-full items-center justify-center rounded-xl bg-primary/5 text-primary">
-    <Tag size={36} />
-  </div>
-)}
+                <div className="h-44 w-full rounded-2xl bg-slate-100 overflow-hidden relative">
+                  <img
+                    src={
+                      p.photoUrl ||
+                      (p.culture?.toLowerCase().includes("maï") || p.culture?.toLowerCase().includes("corn")
+                        ? "/illustartion1.png"
+                        : p.culture?.toLowerCase().includes("manioc") || p.culture?.toLowerCase().includes("cassava")
+                        ? "/illustartion3.png"
+                        : "/illustartion2.png")
+                    }
+                    alt={p.nom}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute top-2 left-2">
+                    <span className="badge bg-white/90 backdrop-blur-md font-extrabold text-emerald-800 text-xs px-2.5 py-1 rounded-full border border-emerald-200">
+                      {p.culture}
+                    </span>
+                  </div>
+                </div>
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-bold text-base text-base-content">{p.nom}</h3>

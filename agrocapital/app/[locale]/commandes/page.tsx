@@ -16,6 +16,7 @@ type Commande = {
     nom: string;
     culture: string;
     uniteMesure: string;
+    photoUrl?: string | null;
   };
   acheteur: {
     id: string;
@@ -156,67 +157,84 @@ export default function CommandesPage() {
           </div>
         ) : (
           <div className="space-y-3">
-            {commandes.map((c) => (
-              <div key={c.id} className="card bg-white border border-base-200 p-5 space-y-4 shadow-xs">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <span className="text-xs text-muted font-bold block">{dateCourteFr(c.createdAt)}</span>
-                    <h3 className="font-bold text-lg text-base-content">{c.produit.nom}</h3>
-                    <p className="text-xs text-muted">
-                      {roleVue === "vendeur" ? t("clientInfo", { nom: c.acheteur.nom, tel: c.acheteur.telephone }) : t("vendorInfo", { nom: c.vendeur.nom, tel: c.vendeur.telephone })}
-                    </p>
+            {commandes.map((c) => {
+              const photoSrc =
+                c.produit.photoUrl ||
+                (c.produit.culture?.toLowerCase().includes("maï") || c.produit.culture?.toLowerCase().includes("corn")
+                  ? "/illustartion1.png"
+                  : c.produit.culture?.toLowerCase().includes("manioc") || c.produit.culture?.toLowerCase().includes("cassava")
+                  ? "/illustartion3.png"
+                  : "/illustartion2.png");
+
+              return (
+                <div key={c.id} className="card bg-white border border-base-200 p-5 space-y-4 shadow-xs">
+                  <div className="flex gap-4 items-start">
+                    <div className="h-16 w-16 shrink-0 rounded-2xl bg-slate-100 overflow-hidden border border-slate-200">
+                      <img src={photoSrc} alt={c.produit.nom} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2">
+                        <div>
+                          <span className="text-xs text-muted font-bold block">{dateCourteFr(c.createdAt)}</span>
+                          <h3 className="font-extrabold text-base text-slate-900 truncate">{c.produit.nom}</h3>
+                          <p className="text-xs text-muted">
+                            {roleVue === "vendeur" ? t("clientInfo", { nom: c.acheteur.nom, tel: c.acheteur.telephone }) : t("vendorInfo", { nom: c.vendeur.nom, tel: c.vendeur.telephone })}
+                          </p>
+                        </div>
+                        <span className={`badge ${statutCommandeBadge(c.statut)} font-bold text-xs p-2 shrink-0`}>
+                          {STATUT_COMMANDE_LABEL[c.statut] ?? c.statut}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <span className={`badge ${statutCommandeBadge(c.statut)} font-bold text-xs p-2`}>
-                    {STATUT_COMMANDE_LABEL[c.statut] ?? c.statut}
-                  </span>
-                </div>
 
-                <div className="flex justify-between items-baseline bg-base-100 p-3 rounded-xl">
-                  <div>
-                    <span className="text-xs text-muted block">{t("quantity")}</span>
-                    <strong className="text-base font-bold">{c.quantite} {c.produit.uniteMesure}</strong>
+                  <div className="flex justify-between items-baseline bg-base-100 p-3 rounded-xl">
+                    <div>
+                      <span className="text-xs text-muted block">{t("quantity")}</span>
+                      <strong className="text-base font-bold">{c.quantite} {c.produit.uniteMesure}</strong>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-xs text-muted block">{t("totalAmount")}</span>
+                      <strong className="text-lg font-extrabold text-primary">{formatFcfa(c.montantTotal)}</strong>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <span className="text-xs text-muted block">{t("totalAmount")}</span>
-                    <strong className="text-lg font-extrabold text-primary">{formatFcfa(c.montantTotal)}</strong>
+
+                  {/* Actions par machine à états */}
+                  <div className="flex flex-wrap gap-2 pt-2 border-t border-base-100">
+                    {roleVue === "vendeur" && c.statut === "EN_ATTENTE" && (
+                      <button
+                        onClick={() => handleChangerStatut(c.id, "CONFIRMEE")}
+                        className="btn btn-primary btn-sm font-bold flex-1"
+                      >
+                        <CheckCircle size={16} /> {t("confirmOrder")}
+                      </button>
+                    )}
+
+                    {roleVue === "vendeur" && c.statut === "CONFIRMEE" && (
+                      <button
+                        onClick={() => handleChangerStatut(c.id, "EN_LIVRAISON")}
+                        className="btn btn-primary btn-sm font-bold flex-1"
+                      >
+                        <Truck size={16} /> {t("shipOrder")}
+                      </button>
+                    )}
+
+                    {roleVue === "acheteur" && (c.statut === "EN_LIVRAISON" || c.statut === "CONFIRMEE") && (
+                      <button
+                        onClick={() => {
+                          setCommandePaiement(c);
+                          setNumero(c.acheteur.telephone);
+                          setMsgPaiement(null);
+                        }}
+                        className="btn btn-primary btn-sm font-bold flex-1"
+                      >
+                        <Smartphone size={16} /> {t("payAtDelivery")}
+                      </button>
+                    )}
                   </div>
                 </div>
-
-                {/* Actions par machine à états */}
-                <div className="flex flex-wrap gap-2 pt-2 border-t border-base-100">
-                  {roleVue === "vendeur" && c.statut === "EN_ATTENTE" && (
-                    <button
-                      onClick={() => handleChangerStatut(c.id, "CONFIRMEE")}
-                      className="btn btn-primary btn-sm font-bold flex-1"
-                    >
-                      <CheckCircle size={16} /> {t("confirmOrder")}
-                    </button>
-                  )}
-
-                  {roleVue === "vendeur" && c.statut === "CONFIRMEE" && (
-                    <button
-                      onClick={() => handleChangerStatut(c.id, "EN_LIVRAISON")}
-                      className="btn btn-primary btn-sm font-bold flex-1"
-                    >
-                      <Truck size={16} /> {t("shipOrder")}
-                    </button>
-                  )}
-
-                  {roleVue === "acheteur" && (c.statut === "EN_LIVRAISON" || c.statut === "CONFIRMEE") && (
-                    <button
-                      onClick={() => {
-                        setCommandePaiement(c);
-                        setNumero(c.acheteur.telephone);
-                        setMsgPaiement(null);
-                      }}
-                      className="btn btn-primary btn-sm font-bold flex-1"
-                    >
-                      <Smartphone size={16} /> {t("payAtDelivery")}
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 

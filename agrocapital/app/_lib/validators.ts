@@ -85,7 +85,7 @@ uniteMesure: z.enum([
 ]).default("KG"),
   quantiteDisponible: z.number().nonnegative("La quantité ne peut pas être négative"),
   quantiteMinCommande: z.number().positive().default(1),
-  photoUrl: z.string().url().optional(),
+  photoUrl: z.string().nullable().optional(),
   stockSourceId: z.string().cuid().optional(),
 });
 
