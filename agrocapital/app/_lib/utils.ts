@@ -79,7 +79,7 @@ export const UNITES_MESURE = [
   { value: "TONNE", label: "Tonnes" },
   { value: "SAC50KG", label: "Sacs de 50 kg" },
   { value: "SAC100KG", label: "Sacs de 100 kg" },
-  { value: "BOTTE", label: "Bottes" },
+  { value: "BOL", label: "bol" },
   { value: "LITRE", label: "Litres" },
   { value: "UNITE", label: "Unités" },
 ] as const;

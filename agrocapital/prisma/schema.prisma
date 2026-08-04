@@ -100,13 +100,13 @@ enum Tendance {
 enum UniteMesure {
   KG
   TONNE
-  SAC50KG   /// Sac de 50 kg (standard marché togolais)
-  SAC100KG  /// Sac de 100 kg
-  BOTTE      /// Botte (légumes feuilles, oignons)
+  SAC50KG
+  SAC100KG
+  BOTTE
+  BOL
   LITRE
-  UNITE      /// Pièce / unité indivisible
+  UNITE
 }
-
 // ============================================================
 // MODÈLES — AXE IDENTITÉ & COMPTE
 // ============================================================

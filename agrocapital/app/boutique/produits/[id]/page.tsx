@@ -2,50 +2,75 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { ArrowLeft, ArrowRight, ShoppingBag } from "lucide-react";
+import { useParams, useRouter } from "next/navigation";
+import { ArrowLeft, Save, ShoppingBag } from "lucide-react";
 import { PageShell } from "@/_components/page-shell";
 import { ProductPhotoUpload } from "@/_components/product-photo-upload";
 import { CULTURES_COURANTES, UNITES_MESURE } from "@/_lib/utils";
 
-type Stock = {
+type Produit = {
   id: string;
   culture: string;
-  quantiteKg: number;
+  nom: string;
+  description: string | null;
+  prixUnitaire: number;
+  uniteMesure: string;
+  quantiteDisponible: number;
+  photoUrl: string | null;
 };
 
-export default function NouveauProduitCommercialPage() {
+export default function ModifierProduitPage() {
+  const params = useParams<{ id: string }>();
   const router = useRouter();
-  const [culture, setCulture] = useState("Maïs");
-  const [nom, setNom] = useState("Sac de Maïs Blanc de Kévé");
-  const [description, setDescription] = useState("");
-  const [prixUnitaire, setPrixUnitaire] = useState(9000);
-  const [uniteMesure, setUniteMesure] = useState("SAC50KG");
-  const [quantiteDisponible, setQuantiteDisponible] = useState(10);
-  const [stockSourceId, setStockSourceId] = useState<string>("");
-  const [stocks, setStocks] = useState<Stock[]>([]);
-  const [photo, setPhoto] = useState<File | null>(null);
 
-  const [chargement, setChargement] = useState(false);
+  const [produit, setProduit] = useState<Produit | null>(null);
+  const [culture, setCulture] = useState("");
+  const [nom, setNom] = useState("");
+  const [description, setDescription] = useState("");
+  const [prixUnitaire, setPrixUnitaire] = useState(0);
+  const [uniteMesure, setUniteMesure] = useState("");
+  const [quantiteDisponible, setQuantiteDisponible] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [erreur, setErreur] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/stocks")
-      .then((res) => (res.ok ? res.json() : null))
-      .then((json) => {
-        if (json?.data?.stocks) setStocks(json.data.stocks);
-      })
-      .catch(console.error);
-  }, []);
+    async function chargerProduit() {
+      try {
+        const res = await fetch(`/api/marketplace/produits/${params.id}`);
+        const json = await res.json();
+
+        if (!res.ok) {
+          setErreur(json.error ?? "Produit introuvable");
+          return;
+        }
+
+        const data: Produit = json.data;
+        setProduit(data);
+        setCulture(data.culture);
+        setNom(data.nom);
+        setDescription(data.description ?? "");
+        setPrixUnitaire(data.prixUnitaire);
+        setUniteMesure(data.uniteMesure);
+        setQuantiteDisponible(data.quantiteDisponible);
+      } catch {
+        setErreur("Impossible de charger le produit");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    chargerProduit();
+  }, [params.id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setChargement(true);
+    setSaving(true);
     setErreur(null);
 
     try {
-      const res = await fetch("/api/marketplace/produits", {
-        method: "POST",
+      const res = await fetch(`/api/marketplace/produits/${params.id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           culture,
@@ -54,54 +79,14 @@ export default function NouveauProduitCommercialPage() {
           prixUnitaire: Number(prixUnitaire),
           uniteMesure,
           quantiteDisponible: Number(quantiteDisponible),
-          stockSourceId: stockSourceId || undefined,
         }),
       });
 
-      if (!res.ok) {
-        const json = await res.json();
-        setErreur(json.error ?? "Erreur lors de la mise en vente du produit");
-        return;
-      }
-
       const json = await res.json();
 
-      if (photo) {
-        const formData = new FormData();
-        formData.append("photo", photo);
-
-        const photoResponse = await fetch(
-          `/api/marketplace/produits/${json.data.id}/photo`,
-          {
-            method: "POST",
-            body: formData,
-          }
-        );
-
-        const photoJson = await photoResponse.json();
-
-        if (!photoResponse.ok) {
-          setErreur(
-            "Produit créé, mais l'envoi de la photo a échoué. Vous pourrez la réessayer depuis sa fiche."
-          );
-          return;
-        }
-
-        const updateResponse = await fetch(
-          `/api/marketplace/produits/${json.data.id}`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ photoUrl: photoJson.data.publicUrl }),
-          }
-        );
-
-        if (!updateResponse.ok) {
-          setErreur(
-            "Produit créé, mais l'enregistrement de la photo a échoué. Vous pourrez la réessayer depuis sa fiche."
-          );
-          return;
-        }
+      if (!res.ok) {
+        setErreur(json.error ?? "Modification impossible");
+        return;
       }
 
       router.push("/boutique/produits");
@@ -109,9 +94,27 @@ export default function NouveauProduitCommercialPage() {
     } catch {
       setErreur("Erreur réseau");
     } finally {
-      setChargement(false);
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <PageShell>
+        <div className="flex justify-center p-12">
+          <span className="loading loading-spinner loading-lg text-primary" />
+        </div>
+      </PageShell>
+    );
+  }
+
+  if (!produit) {
+    return (
+      <PageShell>
+        <div className="alert alert-error">{erreur ?? "Produit introuvable"}</div>
+      </PageShell>
+    );
+  }
 
   return (
     <PageShell>
@@ -125,11 +128,7 @@ export default function NouveauProduitCommercialPage() {
 
         <header>
           <p className="text-eyebrow">Vitrine commerciale</p>
-          <h1 className="mt-1 text-h1">Mettre un produit en vente</h1>
-          <p className="mt-2 text-sm text-muted">
-            Créez une fiche produit accessible par les acheteurs et autres
-            agriculteurs sur la marketplace.
-          </p>
+          <h1 className="mt-1 text-h1">Modifier le produit</h1>
         </header>
 
         <form
@@ -138,10 +137,21 @@ export default function NouveauProduitCommercialPage() {
         >
           <div className="card-body gap-5 p-6">
             {erreur && (
-              <div className="alert alert-error text-sm py-2">
-                <span>{erreur}</span>
-              </div>
+              <div className="alert alert-error text-sm py-2">{erreur}</div>
             )}
+
+            <div className="form-control gap-2">
+              <span className="label-text font-semibold">Photo du produit</span>
+              <ProductPhotoUpload
+                produitId={produit.id}
+                initialUrl={produit.photoUrl}
+                onUploaded={(photoUrl) =>
+                  setProduit((current) =>
+                    current ? { ...current, photoUrl } : current
+                  )
+                }
+              />
+            </div>
 
             <div className="form-control gap-2">
               <label
@@ -150,36 +160,28 @@ export default function NouveauProduitCommercialPage() {
               >
                 <ShoppingBag size={18} className="text-primary" /> Culture
               </label>
-            <input
-  id="culture-select"
-  type="text"
-  list="cultures-suggestions"
-  value={culture}
-  onChange={(e) => setCulture(e.target.value)}
-  placeholder="Ex. Maïs, sorgho, haricot..."
-  className="input input-bordered input-lg w-full font-bold"
-  required
-/>
 
-<datalist id="cultures-suggestions">
-  {CULTURES_COURANTES.map((c) => {
-    const val = c.replace(/^[^\s]+\s/, "");
-    return <option key={val} value={val} />;
-  })}
-</datalist>
-            </div>
+              <input
+                id="culture-select"
+                type="text"
+                list="cultures-suggestions"
+                value={culture}
+                onChange={(e) => setCulture(e.target.value)}
+                className="input input-bordered input-lg w-full font-bold"
+                required
+              />
 
-            <div className="form-control gap-2">
-              <span className="label-text font-semibold">
-                Photo du produit{" "}
-                <span className="font-normal text-muted">(facultatif)</span>
-              </span>
-              <ProductPhotoUpload onPrepared={setPhoto} />
+              <datalist id="cultures-suggestions">
+                {CULTURES_COURANTES.map((c) => {
+                  const val = c.replace(/^[^\s]+\s/, "");
+                  return <option key={val} value={val} />;
+                })}
+              </datalist>
             </div>
 
             <div className="form-control gap-2">
               <label htmlFor="nom" className="label-text font-semibold">
-                Titre de l&apos;annonce produit
+                Titre de l’annonce produit
               </label>
               <input
                 id="nom"
@@ -229,12 +231,12 @@ export default function NouveauProduitCommercialPage() {
 
             <div className="form-control gap-2">
               <label htmlFor="qte" className="label-text font-semibold">
-                Quantité mise en vente
+                Quantité disponible
               </label>
               <input
                 id="qte"
                 type="number"
-                min={1}
+                min={0}
                 value={quantiteDisponible}
                 onChange={(e) =>
                   setQuantiteDisponible(Number(e.target.value))
@@ -244,30 +246,6 @@ export default function NouveauProduitCommercialPage() {
               />
             </div>
 
-            {stocks.length > 0 && (
-              <div className="form-control gap-2 rounded-xl bg-base-200 p-4">
-                <label
-                  htmlFor="stock-link"
-                  className="label-text text-xs font-semibold uppercase text-muted"
-                >
-                  (Optionnel) Rattaché à votre stock physique
-                </label>
-                <select
-                  id="stock-link"
-                  value={stockSourceId}
-                  onChange={(e) => setStockSourceId(e.target.value)}
-                  className="select select-bordered select-md w-full font-medium"
-                >
-                  <option value="">Aucun lien (indépendant)</option>
-                  {stocks.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.culture} — {s.quantiteKg} kg disponibles
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
             <div className="form-control gap-2">
               <label htmlFor="desc" className="label-text font-semibold">
                 Description complémentaire
@@ -275,7 +253,6 @@ export default function NouveauProduitCommercialPage() {
               <textarea
                 id="desc"
                 rows={3}
-                placeholder="Qualité du grain, séchage, emballage..."
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="textarea textarea-bordered w-full"
@@ -284,14 +261,14 @@ export default function NouveauProduitCommercialPage() {
 
             <button
               type="submit"
-              disabled={chargement}
-              className="btn btn-primary btn-lg mt-2 w-full"
+              disabled={saving}
+              className="btn btn-primary btn-lg w-full"
             >
-              {chargement ? (
+              {saving ? (
                 <span className="loading loading-spinner" />
               ) : (
                 <>
-                  Publier le produit <ArrowRight size={20} />
+                  <Save size={20} /> Enregistrer les modifications
                 </>
               )}
             </button>

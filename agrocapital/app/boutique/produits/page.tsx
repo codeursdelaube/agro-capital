@@ -2,15 +2,17 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Plus, Trash2, Tag, ArrowLeft } from "lucide-react";
+import { Plus, Trash2, Tag, ArrowLeft, Pencil } from "lucide-react";
 import { PageShell } from "@/_components/page-shell";
 import { formatFcfa } from "@/_lib/utils";
+import Image from "next/image";
 
 type Produit = {
   id: string;
   culture: string;
   nom: string;
   description: string | null;
+  photoUrl: string | null;
   prixUnitaire: number;
   uniteMesure: string;
   quantiteDisponible: number;
@@ -83,6 +85,19 @@ export default function MesProduitsPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             {produits.map((p) => (
               <div key={p.id} className="card bg-white border border-base-200 p-4 space-y-3 shadow-xs">
+                {p.photoUrl ? (
+  <Image
+    src={p.photoUrl}
+    alt={p.nom}
+    className="h-40 w-full rounded-xl object-cover"
+    width={200}
+    height={200}
+  />
+) : (
+  <div className="flex h-40 w-full items-center justify-center rounded-xl bg-primary/5 text-primary">
+    <Tag size={36} />
+  </div>
+)}
                 <div className="flex justify-between items-start">
                   <div>
                     <h3 className="font-bold text-base text-base-content">{p.nom}</h3>
@@ -96,11 +111,21 @@ export default function MesProduitsPage() {
                   <span className="text-lg font-extrabold text-primary">{formatFcfa(p.prixUnitaire)} / {p.uniteMesure}</span>
                   <span className="text-xs font-semibold text-muted">Dispo : {p.quantiteDisponible} {p.uniteMesure}</span>
                 </div>
-                <div className="flex justify-end pt-2 border-t border-base-100">
-                  <button onClick={() => handleDelete(p.id)} className="btn btn-ghost btn-xs text-error">
-                    <Trash2 size={14} /> Retirer
-                  </button>
-                </div>
+                <div className="flex justify-end gap-2 border-t border-base-100 pt-2">
+  <Link
+    href={`/boutique/produits/${p.id}`}
+    className="btn btn-outline btn-primary btn-xs"
+  >
+    <Pencil size={14} /> Modifier
+  </Link>
+
+  <button
+    onClick={() => handleDelete(p.id)}
+    className="btn btn-ghost btn-xs text-error"
+  >
+    <Trash2 size={14} /> Retirer
+  </button>
+</div>
               </div>
             ))}
           </div>
