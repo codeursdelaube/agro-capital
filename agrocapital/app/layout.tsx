@@ -6,5 +6,11 @@ import type { ReactNode } from "react";
  * pour que next-intl et la locale courante soient correctement gérés sans imbrication de balises HTML.
  */
 export default function RootLayout({ children }: { children: ReactNode }) {
-  return children;
+  return (
+    <html lang="fr" data-theme="agrocapital">
+      <body className="min-h-screen bg-base-100 text-base-content antialiased">
+        {children}
+      </body>
+    </html>
+  );
 }

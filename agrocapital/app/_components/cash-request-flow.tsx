@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckCircle2, ChevronLeft, ChevronRight, PlusCircle, Smartphone } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { formatFcfa } from "@/_lib/utils";
+import { formatFcfa, isCultureNantissable } from "@/_lib/utils";
 
 type Stock = {
   id: string;
@@ -207,35 +207,46 @@ export function CashRequestFlow() {
                 <div className="space-y-3">
                   {stocks.map((s) => {
                     const isSelected = s.id === selectedStockId;
-                    const dispo = s.statut === "DISPONIBLE";
+                    const isNantissable = isCultureNantissable(s.culture);
+                    const dispo = s.statut === "DISPONIBLE" && isNantissable;
                     return (
-                      <label
-                        key={s.id}
-                        onClick={() => dispo && handleStockChange(s.id)}
-                        className={`flex items-center gap-4 rounded-2xl border-2 p-4 transition-all ${
-                          !dispo ? "opacity-50 cursor-not-allowed bg-base-200" : "cursor-pointer"
-                        } ${isSelected ? "border-primary bg-primary/5 shadow-sm" : "border-base-200 bg-white"}`}
-                      >
-                        <input
-                          type="radio"
-                          name="stock-select"
-                          checked={isSelected}
-                          disabled={!dispo}
-                          onChange={() => handleStockChange(s.id)}
-                          className="radio radio-primary"
-                        />
-                        <div className="flex-1 min-w-0">
-                          <strong className="block text-base-content text-base">
-                            {s.culture} — {s.quantiteKg} kg
-                          </strong>
-                          <span className="mt-0.5 block text-sm text-muted">
-                            {t("estimatedVal", { val: formatFcfa(s.valeurEstimee) })} ({t("ceiling70", { max: formatFcfa(s.valeurEstimee * 0.7) })})
+                      <div key={s.id} className="space-y-2">
+                        <label
+                          onClick={() => dispo && handleStockChange(s.id)}
+                          className={`flex items-center gap-4 rounded-2xl border-2 p-4 transition-all ${
+                            !dispo ? "opacity-60 cursor-not-allowed bg-slate-50 dark:bg-slate-900" : "cursor-pointer hover:border-emerald-400"
+                          } ${isSelected ? "border-emerald-600 bg-emerald-500/5 shadow-xs" : "border-slate-200/80 bg-white dark:bg-slate-800"}`}
+                        >
+                          <input
+                            type="radio"
+                            name="stock-select"
+                            checked={isSelected}
+                            disabled={!dispo}
+                            onChange={() => handleStockChange(s.id)}
+                            className="radio radio-primary"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <strong className="block text-slate-900 dark:text-white text-base font-extrabold">
+                              {s.culture} — {s.quantiteKg} kg
+                            </strong>
+                            <span className="mt-0.5 block text-xs text-slate-500 font-medium">
+                              {t("estimatedVal", { val: formatFcfa(s.valeurEstimee) })} ({t("ceiling70", { max: formatFcfa(s.valeurEstimee * 0.7) })})
+                            </span>
+                          </div>
+                          <span className={`badge border-0 text-xs font-bold ${!isNantissable ? "bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300" : s.statut === "DISPONIBLE" ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300" : "bg-amber-100 text-amber-800"}`}>
+                            {!isNantissable ? "🛑 Périssable (Non éligible)" : s.statut}
                           </span>
-                        </div>
-                        <span className={`badge border-0 text-xs font-bold ${s.statut === "DISPONIBLE" ? "bg-primary/10 text-primary" : "bg-warning/20 text-yellow-800"}`}>
-                          {s.statut}
-                        </span>
-                      </label>
+                        </label>
+
+                        {!isNantissable && isSelected && (
+                          <div className="alert alert-warning text-xs p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 space-y-1">
+                            <strong className="font-extrabold block">🛑 Culture périssable non éligible au warrantage</strong>
+                            <p className="leading-relaxed">
+                              La culture "{s.culture}" ne peut pas être conservée en garantie de crédit. Le warrantage est réservé aux grains et légumineuses secs (Maïs, Riz, Sorgho, Niébé, Soja, Sésame, Arachide). Vendez ce stock directement sur la Marketplace.
+                            </p>
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
@@ -308,7 +319,11 @@ export function CashRequestFlow() {
           ) : <span />}
 
           {step < 3 ? (
-            <button onClick={() => setStep(step + 1)} className="btn btn-primary btn-lg col-start-2">
+            <button
+              onClick={() => setStep(step + 1)}
+              disabled={!selectedStock || !isCultureNantissable(selectedStock.culture) || selectedStock.statut !== "DISPONIBLE"}
+              className="btn btn-primary btn-lg col-start-2"
+            >
               {tc("next")}
               <ChevronRight size={19} />
             </button>

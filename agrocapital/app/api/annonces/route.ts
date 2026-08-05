@@ -122,20 +122,39 @@ export async function POST(req: Request) {
       },
     });
 
-    // Notifier les utilisateurs qui suivent cette culture
-    const suiveurs = await prisma.suivi.findMany({
-      where: { cultureSuivie: { equals: body.culture, mode: "insensitive" } },
-      select: { followerId: true },
-    });
+    // Notifier TOUS les acheteurs (CLIENTS) et les suiveurs de cette culture
+    const [clients, suiveurs] = await Promise.all([
+      prisma.user.findMany({
+        where: { role: "CLIENT" },
+        select: { id: true },
+      }),
+      prisma.suivi.findMany({
+        where: { cultureSuivie: { equals: body.culture, mode: "insensitive" } },
+        select: { followerId: true },
+      }),
+    ]);
 
-    if (suiveurs.length > 0) {
+    const destinataires = Array.from(
+      new Set([
+        ...clients.map((c) => c.id),
+        ...suiveurs.map((s) => s.followerId),
+      ])
+    ).filter((id) => id !== currentUser.id);
+
+    if (destinataires.length > 0) {
+      const dateFormatted = new Date(body.dateRecoltePrevu).toLocaleDateString("fr-FR", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+
       await prisma.notification.createMany({
-        data: suiveurs.map((s: any) => ({
-          userId: s.followerId,
+        data: destinataires.map((userId) => ({
+          userId,
           type: "ANNONCE" as const,
-          titre: `Nouvelle récolte annoncée : ${body.culture}`,
-          message: `${currentUser.nom} annonce une récolte de ${body.quantiteEstimee} kg dans la région ${body.region}`,
-          lienRessource: `/annonces/${annonce.id}`,
+          titre: `📢 Pré-vente : Récolte imminente de ${body.culture} (${body.quantiteEstimee} kg)`,
+          message: `L'agriculteur ${currentUser.nom} annonce une récolte de ${body.quantiteEstimee} kg de ${body.culture} prévue le ${dateFormatted} (${body.region}). Préparez vos réservations à l'avance !`,
+          lienRessource: `/annonces`,
         })),
         skipDuplicates: true,
       });

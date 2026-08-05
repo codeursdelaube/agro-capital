@@ -38,7 +38,6 @@ function stripLocale(pathname: string): string {
   );
   const match = pathname.match(localePattern);
   if (match) {
-    // match[2] = la partie après la locale (peut être undefined si racine)
     return match[2] ?? "/";
   }
   return pathname;
@@ -48,11 +47,25 @@ export default function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
   // ─── 1. next-intl gère d'abord la détection / redirection de locale ──────
-  //       (ex: / → /fr/, /boutique → /fr/boutique)
   const intlResponse = intlMiddleware(request);
 
   // ─── 2. Auth guard — opère sur le chemin sans préfixe locale ─────────────
   const cleanPath = stripLocale(pathname);
+
+  // ─── 2b. Redirection silencieuse pour les tentatives /admin ───────────────────
+  if (cleanPath === "/admin" || cleanPath.startsWith("/admin/") || cleanPath === "/nantissement/admin") {
+    return NextResponse.redirect(new URL(`/${routing.defaultLocale}/`, request.url));
+  }
+
+  // ─── 2c. Portail Secret Admin /djobokoumin ───────────────────────────────────
+  const adminCookie = request.cookies.get("agrocapital_admin_session")?.value;
+  const isAdminAuthenticated = adminCookie === "authenticated_admin_session_token";
+
+  if (cleanPath.startsWith("/djobokoumin") && cleanPath !== "/djobokoumin/connexion" && !isAdminAuthenticated) {
+    return NextResponse.redirect(new URL(`/${routing.defaultLocale}/djobokoumin/connexion`, request.url));
+  }
+
+  // ─── 2d. Auth guard classique ─────────────────────────────────────────────────
   const sessionToken = request.cookies.get(SESSION_COOKIE)?.value;
   const isAuthenticated = Boolean(sessionToken);
 
@@ -61,7 +74,6 @@ export default function proxy(request: NextRequest) {
   );
 
   if (isProtected && !isAuthenticated) {
-    // Redirige vers /fr/connexion?from=<chemin sans locale>
     const connexionUrl = new URL(
       `/${routing.defaultLocale}/connexion`,
       request.url
@@ -75,13 +87,12 @@ export default function proxy(request: NextRequest) {
   );
 
   if (isAuthPage && isAuthenticated) {
-    // Redirige l'utilisateur déjà connecté vers l'accueil localisé
     return NextResponse.redirect(
       new URL(`/${routing.defaultLocale}/`, request.url)
     );
   }
 
-  // ─── 3. Laisse next-intl finaliser la réponse (headers Accept-Language, etc.)
+  // ─── 3. Laisse next-intl finaliser la réponse
   return intlResponse ?? NextResponse.next();
 }
 

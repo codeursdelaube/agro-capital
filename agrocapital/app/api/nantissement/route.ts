@@ -2,8 +2,9 @@ import { requireRole } from "@/_lib/auth";
 import { prisma } from "@/_lib/prisma";
 import { demandeNantissementSchema } from "@/_lib/validators";
 import { ok, err, handleError, parseBody } from "@/_lib/api-helpers";
+import { isCultureNantissable } from "@/_lib/utils";
 
-/** GET /api/nantissement — Mes demandes de nantissement */
+/** GET /api/nantissement — Mes demandes de nantissement (Agriculteur uniquement) */
 export async function GET(req: Request) {
   try {
     const currentUser = await requireRole("AGRICULTEUR");
@@ -34,6 +35,9 @@ export async function GET(req: Request) {
           dateRemboursementDue: true,
           createdAt: true,
           updatedAt: true,
+          user: {
+            select: { id: true, nom: true, prenom: true, telephone: true, region: true },
+          },
           stock: {
             select: { id: true, culture: true, quantiteKg: true, valeurEstimee: true },
           },
@@ -60,15 +64,24 @@ export async function POST(req: Request) {
     // Vérifier que le stock appartient à l'agriculteur et est disponible
     const stock = await prisma.stock.findUnique({
       where: { id: body.stockId },
-      select: { userId: true, statut: true, valeurEstimee: true, quantiteKg: true },
+      select: { userId: true, statut: true, culture: true, valeurEstimee: true, quantiteKg: true },
     });
 
     if (!stock || stock.userId !== currentUser.id) {
       return err("Stock introuvable ou non autorisé", 404);
     }
+
+    // Vérifier l'éligibilité agronomique au Warrantage (Grains & Légumineuses sèches)
+    if (!isCultureNantissable(stock.culture)) {
+      return err(
+        `La culture "${stock.culture}" est un produit périssable. Seules les céréales et légumineuses sèches (Maïs, Riz, Sorgho, Niébé, Soja, Sésame...) peuvent faire l'objet d'une avance warrantage via nos IMF partenaires.`,
+        422
+      );
+    }
+
     if (stock.statut !== "DISPONIBLE") {
       return err(
-        `Ce stock ne peut pas être nanti (statut actuel : ${stock.statut})`,
+        `Ce stock ne peut pas être mis en garantie (statut actuel : ${stock.statut})`,
         422
       );
     }

@@ -99,3 +99,51 @@ export const CULTURES_COURANTES = [
   "🍌 Banane",
   "🌴 Noix de palme",
 ] as const;
+
+/** Cultures éligibles au Warrantage (Grains & Légumineuses sèches stockables) */
+export const CULTURES_WARRANTAGE_ELIGIBLES = [
+  "Maïs",
+  "Riz",
+  "Sorgho",
+  "Mil",
+  "Fonio",
+  "Niébé",
+  "Arachide",
+  "Soja",
+  "Sésame",
+  "Anacarde",
+] as const;
+
+/** Vérifie si une culture est stocable et éligible au crédit warrantage */
+export function isCultureNantissable(culture: string): boolean {
+  if (!culture) return false;
+  const c = culture.toLowerCase();
+  const eligibles = [
+    "maïs",
+    "mais",
+    "corn",
+    "riz",
+    "rice",
+    "paddy",
+    "sorgho",
+    "sorghum",
+    "mil",
+    "millet",
+    "fonio",
+    "niébé",
+    "niebe",
+    "haricot",
+    "bean",
+    "arachide",
+    "peanut",
+    "soja",
+    "soy",
+    "soybean",
+    "sésame",
+    "sesame",
+    "anacarde",
+    "cajou",
+    "cashew",
+  ];
+  return eligibles.some((e) => c.includes(e));
+}

@@ -1,4 +1,5 @@
 import { requireRole } from "@/_lib/auth";
+import { requireAdminAccess } from "@/_lib/admin-auth";
 import { prisma } from "@/_lib/prisma";
 import { approuverNantissementSchema } from "@/_lib/validators";
 import { ok, err, handleError, parseBody } from "@/_lib/api-helpers";
@@ -64,7 +65,7 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    await requireRole("ADMIN");
+    await requireAdminAccess();
     const { id } = await params;
     const body = await parseBody(req, approuverNantissementSchema);
 
