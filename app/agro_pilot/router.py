@@ -178,7 +178,14 @@ async def dossier_financement(
         )
 
 
-@router.post("/agro-pilot/diagnostic-image")
+@router.post(
+    "/diagnostic-image",
+    summary="Diagnostic d'image de plante",
+    description=(
+        "Reçoit une photo de plante et retourne un diagnostic des maladies possibles. "
+        "Utilise un modèle d'analyse d'image alimenté par Agro-Pilot."
+    ),
+)
 async def diagnostic_image(file: UploadFile = File(...)):
     """
     Reçoit une photo de plante et retourne un diagnostic des maladies possibles.
