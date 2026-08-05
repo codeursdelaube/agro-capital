@@ -7,14 +7,16 @@ GET  /agro-pilot/meilleur-moment-vente
 GET  /agro-pilot/periode-plantation
 GET  /agro-pilot/analyse-risque
 POST /agro-pilot/dossier-financement
+POST /agro-pilot/diagnostic-image
 """
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.dependencies import get_db
 from app.agro_pilot import service
+from app.agro_pilot.llm_client import diagnose_plant_image
 from app.schemas.agro_pilot import (
     ChatRequest,
     ChatResponse,
@@ -174,3 +176,20 @@ async def dossier_financement(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Erreur lors de la génération du dossier.",
         )
+
+
+@router.post("/agro-pilot/diagnostic-image")
+async def diagnostic_image(file: UploadFile = File(...)):
+    """
+    Reçoit une photo de plante et retourne un diagnostic des maladies possibles.
+    """
+    if not file.content_type or not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="Le fichier envoyé n'est pas une image.")
+
+    image_bytes = await file.read()
+
+    if len(image_bytes) > 5 * 1024 * 1024:  # 5 Mo
+        raise HTTPException(status_code=400, detail="Image trop volumineuse (max 5 Mo).")
+
+    result = await diagnose_plant_image(image_bytes, mime_type=file.content_type)
+    return result
