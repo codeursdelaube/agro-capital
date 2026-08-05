@@ -11,6 +11,7 @@ En cas de dépassement, un fallback basé sur des règles est déclenché.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from typing import Optional
 
@@ -21,7 +22,7 @@ from app.config import settings
 
 logger = logging.getLogger(__name__)
 
-# ── Client singleton ──────────────────────────────────────────────────────────
+# — Client singleton ————————————————————————————
 _client: Optional[genai.Client] = None
 
 
@@ -32,8 +33,7 @@ def _get_client() -> genai.Client:
         _client = genai.Client(api_key=settings.GEMINI_API_KEY)
     return _client
 
-
-# ── System prompt de base ─────────────────────────────────────────────────────
+# — System prompt de base ————————————————————————————
 _SYSTEM_PROMPT = """Tu es Agro-Pilot, l'assistant intelligent d'Agro-Capital, une plateforme
 pour les agriculteurs togolais.
 
@@ -50,6 +50,36 @@ RÈGLES ABSOLUES :
 
 CONTEXTE DE L'AGRICULTEUR :
 {contexte}
+"""
+
+# — System prompt : diagnostic phytosanitaire par image ————————————
+_SYSTEM_PROMPT_DISEASE = """Tu es un expert agronome togolais spécialisé dans le diagnostic phytosanitaire par image.
+
+RÔLE : Analyser la photo d'une plante envoyée par un agriculteur et identifier les maladies possibles.
+
+RÈGLES ABSOLUES :
+- Identifie d'abord la culture si possible (maïs, manioc, cacao, café, tomate, etc.)
+- Énumère UNIQUEMENT les maladies dont les symptômes visibles sur la photo sont cohérents
+- Pour chaque maladie suspectée, indique : nom, niveau de confiance, symptômes observés qui la justifient
+- Si l'image est floue, mal cadrée ou ne montre pas de plante, dis-le clairement au lieu d'inventer un diagnostic
+- Priorise les maladies courantes au Togo et en Afrique de l'Ouest
+- Réponds TOUJOURS en français
+- Termine par une recommandation pratique et accessible (traitement local, action immédiate)
+- Réponds UNIQUEMENT en JSON valide, sans texte avant ou après, selon ce schéma :
+
+{
+  "culture_identifiee": "string ou null",
+  "etat_general": "sain | attention | maladie_probable",
+  "maladies_possibles": [
+    {
+      "nom": "string",
+      "confiance": "faible | moyenne | élevée",
+      "symptomes_observes": ["string", ...],
+      "recommandation": "string"
+    }
+  ],
+  "conseil_general": "string"
+}
 """
 
 _GENERATION_CONFIG = types.GenerateContentConfig(
@@ -161,3 +191,44 @@ async def generate_text(task_description: str, context: str, max_tokens: int = 1
         return await asyncio.to_thread(_call)
     except Exception:
         return "Génération du texte indisponible. Veuillez réessayer."
+
+
+# — Diagnostic phytosanitaire par image ————————————————————————
+async def diagnose_plant_image(image_bytes: bytes, mime_type: str = "image/jpeg") -> dict:
+    """
+    Envoie une photo de plante à Gemini Vision pour diagnostic de maladies.
+
+    Note : utilise gemini-2.5-flash (multimodal) plutôt que gemini-1.5-flash,
+    ce dernier étant retiré par Google (404 sur generateContent).
+
+    Args:
+        image_bytes: contenu brut de l'image (jpg/png)
+        mime_type: type MIME de l'image (ex: "image/jpeg")
+
+    Returns:
+        dict structuré avec les maladies possibles détectées
+    """
+    def _call() -> dict:
+        client = _get_client()
+        image_part = types.Part.from_bytes(data=image_bytes, mime_type=mime_type)
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[image_part, _SYSTEM_PROMPT_DISEASE],
+            config=types.GenerateContentConfig(
+                temperature=0.2,
+                max_output_tokens=800,
+                response_mime_type="application/json",
+            ),
+        )
+        return json.loads(response.text.strip())
+
+    try:
+        return await asyncio.to_thread(_call)
+    except Exception as exc:
+        logger.error("Erreur diagnose_plant_image: %s", exc)
+        return {
+            "culture_identifiee": None,
+            "etat_general": "inconnu",
+            "maladies_possibles": [],
+            "conseil_general": "Diagnostic indisponible pour le moment. Réessayez avec une photo nette, prise en pleine lumière.",
+        }
